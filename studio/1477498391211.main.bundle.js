@@ -27070,11 +27070,27 @@ $__System.registerDynamic("2d", ["7", "2a", "2c"], true, function ($__require, e
                         queryParams[pair[0]] = pair[1];
                     }
                 }
-                _this.router.navigate([path], { "queryParams": queryParams });
+                var rpath = _this.asRoute(path);
+                console.info("[LoginPageComponent] Login successful, redirecting to: %s", rpath);
+                _this.router.navigate([_this.asRoute(rpath)], { "queryParams": queryParams });
             }).catch(function (reason) {
                 _this.authenticating = false;
                 _this.loginError = reason;
             });
+        };
+        /**
+         * Converts a path (as taken from the browser location) into a route.  This is done by removing
+         * any possible leading path context like /studio.  Example:
+         *
+         * /studio/apis/newapi  =>  /apis/newapi
+         *
+         * When the UI is deployed to a sub-context, this is necessary.
+         *
+         * @param path
+         */
+        LoginPageComponent.prototype.asRoute = function (path) {
+            var index = location.pathname.indexOf("/login");
+            return path.substring(index);
         };
         LoginPageComponent = __decorate([core_1.Component({
             moduleId: module.id,
