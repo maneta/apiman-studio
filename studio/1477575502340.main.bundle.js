@@ -21731,18 +21731,25 @@ $__System.registerDynamic("35", [], true, function ($__require, exports, module)
     exports.ApiCollaborators = ApiCollaborators;
     return module.exports;
 });
-$__System.registerDynamic("36", ["38", "39", "35", "37"], true, function ($__require, exports, module) {
+$__System.registerDynamic("36", ["38", "39", "35", "37", "3a"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
+    var __extends = this && this.__extends || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
     var BehaviorSubject_1 = $__require("38");
     var api_model_1 = $__require("39");
     var api_collaborators_1 = $__require("35");
     var http_1 = $__require("37");
+    var github_1 = $__require("3a");
     var APIS_LOCAL_STORAGE_KEY = "apiman.studio.services.local-apis.apis";
-    var GITHUB_API_ENDPOINT = "https://api.github.com";
     var GithubRepoInfo = function () {
         function GithubRepoInfo() {}
         GithubRepoInfo.fromUrl = function (url) {
@@ -21758,13 +21765,15 @@ $__System.registerDynamic("36", ["38", "39", "35", "37"], true, function ($__req
      * An implementation of the IApisService that uses local browser storage to track your APIs.  In addition,
      * it works directly with github to get and update API content.
      */
-    var LocalApisService = function () {
+    var LocalApisService = function (_super) {
+        __extends(LocalApisService, _super);
         /**
          * Constructor.
          * @param http
          * @param authService
          */
         function LocalApisService(http, authService) {
+            _super.call(this);
             this.http = http;
             this.authService = authService;
             this.apiIdCounter = Date.now();
@@ -21778,19 +21787,6 @@ $__System.registerDynamic("36", ["38", "39", "35", "37"], true, function ($__req
             var ra = this.allApis.slice(0, 4);
             this._recentApis.next(ra);
         }
-        /**
-         * Creates a github API endpoint from the api path and params.
-         * @param path
-         * @param params
-         * @return {string}
-         */
-        LocalApisService.prototype.endpoint = function (path, params) {
-            for (var key in params) {
-                var value = params[key];
-                path = path.replace(":" + key, value);
-            }
-            return GITHUB_API_ENDPOINT + path;
-        };
         /**
          * Loads the list of APIs known to this service from browser local storage.
          * @return the list of APIs loaded from local storage
@@ -22031,11 +22027,11 @@ $__System.registerDynamic("36", ["38", "39", "35", "37"], true, function ($__req
             });
         };
         return LocalApisService;
-    }();
+    }(github_1.AbstractGithubService);
     exports.LocalApisService = LocalApisService;
     return module.exports;
 });
-$__System.registerDynamic("3a", ["37", "36", "3b", "2a"], true, function ($__require, exports, module) {
+$__System.registerDynamic("3b", ["37", "36", "3c", "2a"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -22043,7 +22039,7 @@ $__System.registerDynamic("3a", ["37", "36", "3b", "2a"], true, function ($__req
         GLOBAL = global;
     var http_1 = $__require("37");
     var apis_local_service_1 = $__require("36");
-    var apis_service_1 = $__require("3b");
+    var apis_service_1 = $__require("3c");
     var auth_service_1 = $__require("2a");
     function ApisServiceFactory(http, authService) {
         return new apis_local_service_1.LocalApisService(http, authService);
@@ -22056,10 +22052,344 @@ $__System.registerDynamic("3a", ["37", "36", "3b", "2a"], true, function ($__req
     };
     return module.exports;
 });
+$__System.registerDynamic("3d", ["37", "2a", "3e"], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var http_1 = $__require("37");
+    var auth_service_1 = $__require("2a");
+    var auth_github_service_1 = $__require("3e");
+    function AuthenticationServiceFactory(http) {
+        return new auth_github_service_1.GithubAuthenticationService(http);
+    }
+    ;
+    exports.AuthenticationServiceProvider = {
+        provide: auth_service_1.IAuthenticationService,
+        useFactory: AuthenticationServiceFactory,
+        deps: [http_1.Http]
+    };
+    return module.exports;
+});
+$__System.registerDynamic("32", ["7", "3c"], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
+        var c = arguments.length,
+            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+            d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = this && this.__metadata || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var __param = this && this.__param || function (paramIndex, decorator) {
+        return function (target, key) {
+            decorator(target, key, paramIndex);
+        };
+    };
+    var core_1 = $__require("7");
+    var apis_service_1 = $__require("3c");
+    /**
+     * Resolves the recent APIs prior to loading the dashboard screen.
+     */
+    var RecentApisResolve = function () {
+        function RecentApisResolve(apis) {
+            this.apis = apis;
+        }
+        RecentApisResolve.prototype.resolve = function (route) {
+            var _this = this;
+            var promise = new Promise(function (resolve) {
+                var subscription = _this.apis.getRecentApis().subscribe(function (data) {
+                    resolve(data);
+                    subscription.unsubscribe();
+                });
+            });
+            return promise;
+        };
+        RecentApisResolve = __decorate([core_1.Injectable(), __param(0, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [Object])], RecentApisResolve);
+        return RecentApisResolve;
+    }();
+    exports.RecentApisResolve = RecentApisResolve;
+    return module.exports;
+});
+$__System.registerDynamic("33", ["7", "3c"], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
+        var c = arguments.length,
+            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+            d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = this && this.__metadata || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var __param = this && this.__param || function (paramIndex, decorator) {
+        return function (target, key) {
+            decorator(target, key, paramIndex);
+        };
+    };
+    var core_1 = $__require("7");
+    var apis_service_1 = $__require("3c");
+    /**
+     * Resolves an API by its id.
+     */
+    var ApiResolve = function () {
+        function ApiResolve(apis) {
+            this.apis = apis;
+        }
+        ApiResolve.prototype.resolve = function (route) {
+            var apiId = route.params["apiId"];
+            console.info("[ApiResolve] Resolving API with id: " + apiId);
+            return this.apis.getApi(apiId);
+        };
+        ApiResolve = __decorate([core_1.Injectable(), __param(0, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [Object])], ApiResolve);
+        return ApiResolve;
+    }();
+    exports.ApiResolve = ApiResolve;
+    return module.exports;
+});
+$__System.registerDynamic("34", ["7", "2c", "2a"], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
+        var c = arguments.length,
+            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+            d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = this && this.__metadata || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var __param = this && this.__param || function (paramIndex, decorator) {
+        return function (target, key) {
+            decorator(target, key, paramIndex);
+        };
+    };
+    var core_1 = $__require("7");
+    var router_1 = $__require("2c");
+    var auth_service_1 = $__require("2a");
+    var AuthenticationCanActivateGuard = function () {
+        function AuthenticationCanActivateGuard(authService, router) {
+            var _this = this;
+            this.authService = authService;
+            this.router = router;
+            this.sub = authService.isAuthenticated().subscribe(function (value) {
+                _this.isAuthenticated = value;
+            });
+        }
+        AuthenticationCanActivateGuard.prototype.canActivate = function () {
+            if (!this.isAuthenticated) {
+                var path = location.pathname;
+                var query = location.search.substring(1);
+                sessionStorage.setItem("apiman.studio.pages.login.redirect-to.path", path);
+                sessionStorage.setItem("apiman.studio.pages.login.redirect-to.query", query);
+                this.router.navigate(["/login"]);
+            }
+            return this.isAuthenticated;
+        };
+        AuthenticationCanActivateGuard = __decorate([core_1.Injectable(), __param(0, core_1.Inject(auth_service_1.IAuthenticationService)), __metadata('design:paramtypes', [Object, router_1.Router])], AuthenticationCanActivateGuard);
+        return AuthenticationCanActivateGuard;
+    }();
+    exports.AuthenticationCanActivateGuard = AuthenticationCanActivateGuard;
+    return module.exports;
+});
+$__System.registerDynamic("3f", ["7", "2a"], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
+        var c = arguments.length,
+            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+            d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = this && this.__metadata || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var __param = this && this.__param || function (paramIndex, decorator) {
+        return function (target, key) {
+            decorator(target, key, paramIndex);
+        };
+    };
+    var core_1 = $__require("7");
+    var auth_service_1 = $__require("2a");
+    var NavHeaderComponent = function () {
+        function NavHeaderComponent(authService) {
+            this.authService = authService;
+        }
+        NavHeaderComponent.prototype.ngOnInit = function () {};
+        NavHeaderComponent.prototype.user = function () {
+            return this.authService.getAuthenticatedUser();
+        };
+        NavHeaderComponent.prototype.logout = function () {
+            this.authService.logout();
+        };
+        NavHeaderComponent = __decorate([core_1.Component({
+            moduleId: module.id,
+            selector: 'nav-header',
+            template: "\n      <nav class=\"navbar navbar-default navbar-pf\" role=\"navigation\">\n          <div class=\"navbar-header\">\n              <button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse-1\">\n                  <span class=\"sr-only\">Toggle navigation</span>\n                  <span class=\"icon-bar\"></span>\n                  <span class=\"icon-bar\"></span>\n                  <span class=\"icon-bar\"></span>\n              </button>\n              <a class=\"navbar-brand\" href=\"\" style=\"padding-top: 4px; padding-bottom: 2px\">\n                  <div id=\"navbar-logo\" class=\"navbar-brand-logo\">API Design Studio</div>\n              </a>\n          </div>\n          <div class=\"collapse navbar-collapse navbar-collapse-1\">\n              <ul class=\"nav navbar-nav navbar-utility\">\n                  <li class=\"dropdown\">\n                      <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">\n                          <span class=\"pficon pficon-user\"></span>\n                          <span>{{ (user() | async).name }}</span>\n                          <b class=\"caret\"></b>\n                      </a>\n                      <ul class=\"dropdown-menu\">\n                          <li><a aria-disabled=\"true\" class=\"disabled\" href=\"#\">Profile</a></li>\n                          <li class=\"divider\"></li>\n                          <li><a (click)=\"logout()\">Logout</a></li>\n                      </ul></li>\n              </ul>\n          </div>\n      </nav>\n    ",
+            styles: ["\n      .navbar .navbar-brand .navbar-brand-logo {\n        font-size: 12px;\n        font-weight: bold;\n        line-height: 10px;\n        color: white;\n      }\n      .navbar .navbar-brand .navbar-brand-logo:hover {\n        color: gold;\n      }\n      .navbar .dropdown-menu a {\n        cursor: pointer;\n      }\n      .navbar .dropdown-menu a.disabled {\n        cursor: not-allowed;\n        color: #999;\n      }\n      #navbar-logo {\n        background-image: url('/assets/api-designer-logo.png');\n        height: 20px;\n        width: 261px;\n        color: transparent;\n        text-indent: -5000px;\n      }\n    "]
+        }), __param(0, core_1.Inject(auth_service_1.IAuthenticationService)), __metadata('design:paramtypes', [Object])], NavHeaderComponent);
+        return NavHeaderComponent;
+    }();
+    exports.NavHeaderComponent = NavHeaderComponent;
+    return module.exports;
+});
+$__System.registerDynamic("40", ["7", "2c", "3c"], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
+        var c = arguments.length,
+            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+            d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = this && this.__metadata || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var __param = this && this.__param || function (paramIndex, decorator) {
+        return function (target, key) {
+            decorator(target, key, paramIndex);
+        };
+    };
+    var core_1 = $__require("7");
+    var router_1 = $__require("2c");
+    var apis_service_1 = $__require("3c");
+    /**
+     * Models the sub-menus off the main left-hand vertical nav.
+     */
+    var VerticalNavSubMenuType;
+    (function (VerticalNavSubMenuType) {
+        VerticalNavSubMenuType[VerticalNavSubMenuType["None"] = 0] = "None";
+        VerticalNavSubMenuType[VerticalNavSubMenuType["Dashboard"] = 1] = "Dashboard";
+        VerticalNavSubMenuType[VerticalNavSubMenuType["APIs"] = 2] = "APIs";
+    })(VerticalNavSubMenuType || (VerticalNavSubMenuType = {}));
+    var VerticalNavComponent = function () {
+        function VerticalNavComponent(router, apis) {
+            this.router = router;
+            this.apis = apis;
+            this.subMenuTypes = VerticalNavSubMenuType;
+            this.currentSubMenu = VerticalNavSubMenuType.None;
+        }
+        VerticalNavComponent.prototype.ngOnInit = function () {
+            var _this = this;
+            console.log("Subscribing to router events.");
+            this.router.events.subscribe(function (event) {
+                if (event instanceof router_1.NavigationStart) {
+                    _this.currentSubMenu = VerticalNavSubMenuType.None;
+                }
+            });
+        };
+        /**
+         * Returns true if the currently active route is the dashboard.
+         * @returns {boolean}
+         */
+        VerticalNavComponent.prototype.isDashboardRoute = function () {
+            return this.router.isActive("/", true);
+        };
+        /**
+         * Returns true if the currently active route is /apis/*
+         * @returns {boolean}
+         */
+        VerticalNavComponent.prototype.isAPIsRoute = function () {
+            return this.router.isActive("/apis", false);
+        };
+        /**
+         * Called when the user clicks the vertical menu shade (the grey shaded area behind the submenu div that
+         * is displayed when a sub-menu is selected).  Clicking the shade makes the sub-menu div go away.
+         */
+        VerticalNavComponent.prototype.onShadeClick = function () {
+            this.currentSubMenu = VerticalNavSubMenuType.None;
+        };
+        /**
+         * Toggles a sub-menu off the main vertical left-hand menu bar.  If the sub-menu is
+         * already selected, it de-selects it.
+         * @param subMenu the sub-menu to toggle
+         */
+        VerticalNavComponent.prototype.toggleSubMenu = function (subMenu) {
+            if (this.currentSubMenu === subMenu) {
+                this.currentSubMenu = VerticalNavSubMenuType.None;
+            } else {
+                this.currentSubMenu = subMenu;
+            }
+        };
+        VerticalNavComponent = __decorate([core_1.Component({
+            moduleId: module.id,
+            selector: 'vertical-nav',
+            template: "\n      <div id=\"api-vertical-nav-wrapper\">\n\n          <div id=\"api-nav-menu-shade\" *ngIf=\"currentSubMenu != subMenuTypes.None\" (click)=\"onShadeClick()\">\n          </div>\n\n          <div id=\"api-vertical-nav\">\n              <div id=\"api-nav-item-dashboard\" class=\"api-nav-item\" [class.active]=\"isDashboardRoute()\" [class.selected]=\"currentSubMenu === subMenuTypes.Dashboard\" (click)=\"toggleSubMenu(subMenuTypes.Dashboard)\">\n                  <span class=\"fa fa-fw fa-dashboard\"></span>\n                  <div>Dashboard</div>\n              </div>\n              <div id=\"api-nav-item-apis\" class=\"api-nav-item\" [class.active]=\"isAPIsRoute()\" [class.selected]=\"currentSubMenu === subMenuTypes.APIs\" (click)=\"toggleSubMenu(subMenuTypes.APIs)\">\n                  <span class=\"fa fa-fw fa-bolt\"></span>\n                  <div>APIs</div>\n              </div>\n              <div class=\"api-nav-item-filler\">\n              </div>\n          </div>\n\n          <div id=\"api-vertical-nav-details\" *ngIf=\"currentSubMenu != subMenuTypes.None\">\n              <div id=\"api-nav-detail-dashboard\" class=\"api-nav-detail-item\" *ngIf=\"currentSubMenu === subMenuTypes.Dashboard\">\n                  <h3>Dashboard</h3>\n                  <p>Click below to navigate back to the default API Designer dashboard.</p>\n                  <ul>\n                      <li><a routerLink=\"/\">Back to Dashboard</a></li>\n                  </ul>\n              </div>\n              <div id=\"api-nav-detail-apis\" class=\"api-nav-detail-item\" *ngIf=\"currentSubMenu === subMenuTypes.APIs\">\n                  <h3>APIs</h3>\n                  <p class=\"description\">Choose from the actions below or jump directly to one of your starred/favorited APIs.</p>\n                  <h4 class=\"heading\">API Actions</h4>\n                  <div class=\"action\">\n                      <a routerLink=\"/apis\"><span class=\"fa fa-fw fa-search\"></span><span>List All APIs</span></a>\n                  </div>\n                  <div class=\"action\">\n                      <a routerLink=\"/apis/newapi\"><span class=\"fa fa-fw fa-plus\"></span><span>New API</span></a>\n                  </div>\n\n                  <h4 class=\"heading\" *ngIf=\"(apis.getRecentApis() | async).length > 0\">Recent APIs</h4>\n                  <div *ngFor=\"let api of apis.getRecentApis() | async\">\n                      <a [routerLink]=\"['apis', api.id]\"><span class=\"fa fa-fw fa-bolt\"></span><span>{{ api.name }}</span></a>\n                  </div>\n              </div>\n          </div>\n\n      </div>\n    ",
+            styles: ["\n      #api-vertical-nav {\n        position: absolute;\n        left: 0;\n        width: 120px;\n        top: 30px;\n        bottom: 0;\n        background-color: white;\n        overflow: hidden;\n      }\n      #api-vertical-nav .api-nav-item {\n        color: #666;\n        border-bottom: 1px solid #ddd;\n        padding: 15px 10px 15px 10px;\n        text-align: center;\n        border-right: 1px solid #ddd;\n      }\n      #api-vertical-nav .api-nav-item-filler {\n        border-right: 1px solid #ddd;\n        height: 100%;\n      }\n      #api-vertical-nav .api-nav-item:hover {\n        background-color: rgba(0, 0, 55, 0.05);\n        cursor: pointer;\n      }\n      #api-vertical-nav .api-nav-item.active {\n        color: #0088ce;\n      }\n      #api-vertical-nav .api-nav-item.selected {\n        border-right: 1px solid white;\n        color: black;\n        background-color: white;\n      }\n      #api-vertical-nav .api-nav-item > span {\n        font-size: 22px;\n        display: inline-block;\n      }\n      #api-vertical-nav .api-nav-item > div {\n        font-size: 14px;\n      }\n      #api-vertical-nav-details {\n        position: absolute;\n        left: 120px;\n        width: 280px;\n        top: 30px;\n        bottom: 0;\n        background-color: white;\n        border-right: 1px solid #ddd;\n        z-index: 20;\n        padding: 15px;\n      }\n      #api-vertical-nav-details .api-nav-detail-item h3 {\n        margin-top: 0;\n        padding-bottom: 3px;\n        border-bottom: 1px solid #ddd;\n      }\n      #api-vertical-nav-details .api-nav-detail-item p.description {\n        line-height: 17px;\n        padding: 3px;\n      }\n      #api-vertical-nav-details .api-nav-detail-item h4 {\n        font-weight: bold;\n        font-size: 12px;\n        margin-top: 20px;\n      }\n      #api-vertical-nav-details .api-nav-detail-item .action {\n        padding-left: 8px;\n      }\n      #api-nav-menu-shade {\n        position: absolute;\n        left: 120px;\n        right: 0;\n        top: 30px;\n        bottom: 0;\n        z-index: 10;\n        background-color: rgba(0, 0, 0, 0.2);\n      }\n      #api-nav-menu-container {\n        position: absolute;\n        left: 20px;\n        top: 68px;\n        bottom: 0;\n        width: 200px;\n        z-index: 20;\n      }\n      #api-nav-menu-container .api-nav-menu {\n        font-size: 16px;\n        background-color: white;\n      }\n      #api-nav-menu-container .api-nav-menu > a {\n        text-decoration: none;\n      }\n      #api-nav-menu-container .api-nav-menu .menu-item {\n        border-left: 1px solid #ddd;\n        border-right: 1px solid #ddd;\n        border-bottom: 1px solid #ddd;\n        padding: 10px;\n      }\n      #api-nav-menu-container .api-nav-menu .menu-item:hover {\n        background-color: #39a5dc;\n        color: white;\n      }\n      #api-nav-menu-container .api-nav-menu .menu-item > span.fa {\n        margin-right: 5px;\n      }\n    "]
+        }), __param(1, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [router_1.Router, Object])], VerticalNavComponent);
+        return VerticalNavComponent;
+    }();
+    exports.VerticalNavComponent = VerticalNavComponent;
+    return module.exports;
+});
+$__System.registerDynamic("41", ["7"], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
+        var c = arguments.length,
+            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+            d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = this && this.__metadata || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var core_1 = $__require("7");
+    var Breadcrumb = function () {
+        function Breadcrumb(label, icon, route) {
+            this.label = label;
+            this.icon = icon;
+            this.route = route;
+        }
+        return Breadcrumb;
+    }();
+    exports.Breadcrumb = Breadcrumb;
+    var BreadcrumbsComponent = function () {
+        function BreadcrumbsComponent() {}
+        __decorate([core_1.Input(), __metadata('design:type', Array)], BreadcrumbsComponent.prototype, "breadcrumbs", void 0);
+        BreadcrumbsComponent = __decorate([core_1.Component({
+            moduleId: module.id,
+            selector: 'breadcrumbs',
+            template: "\n      <div class=\"container-fluid api-breadcrumbs\">\n          <div class=\"row-fluid\">\n              <ol class=\"breadcrumb\">\n                  <li *ngFor=\"let bc of breadcrumbs\" [class.active]=\"bc.route == null\">\n                      <span *ngIf=\"bc.route == null\"><span class=\"fa fa-fw fa-{{ bc.icon }}\"></span><span>{{ bc.label }}</span></span>\n                      <a *ngIf=\"bc.route != null\" [routerLink]=\"bc.route\"><span class=\"fa fa-fw fa-{{ bc.icon }}\"></span><span>{{ bc.label }}</span></a>\n                  </li>\n              </ol>\n          </div>\n      </div>\n    ",
+            styles: ["\n      .api-breadcrumbs {\n        background: white;\n        border-bottom: 1px solid #ccc;\n      }\n      .api-breadcrumbs .api-home-nav {\n        font-size: 22px;\n        padding: 0 10px 0 10px;\n        margin-right: 15px;\n        border-left: 1px solid #ddd;\n        border-right: 1px solid #ddd;\n      }\n      .api-breadcrumbs .api-home-nav:hover {\n        background-color: #39a5dc;\n      }\n      .api-breadcrumbs .api-home-nav:hover a {\n        color: white;\n      }\n      .api-breadcrumbs .breadcrumb {\n        margin-bottom: 0;\n        float: left;\n      }\n    "]
+        }), __metadata('design:paramtypes', [])], BreadcrumbsComponent);
+        return BreadcrumbsComponent;
+    }();
+    exports.BreadcrumbsComponent = BreadcrumbsComponent;
+    return module.exports;
+});
 (function() {
 var define = $__System.amdDefine;
 (function(global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core')) : typeof define === 'function' && define.amd ? define("9", ["exports", "3c", "7"], factory) : (factory((global.ng = global.ng || {}, global.ng.platformBrowser = global.ng.platformBrowser || {}), global.ng.common, global.ng.core));
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core')) : typeof define === 'function' && define.amd ? define("9", ["exports", "42", "7"], factory) : (factory((global.ng = global.ng || {}, global.ng.platformBrowser = global.ng.platformBrowser || {}), global.ng.common, global.ng.core));
 }(this, function(exports, _angular_common, _angular_core) {
   'use strict';
   var DebugDomRootRenderer = _angular_core.__core_private__.DebugDomRootRenderer;
@@ -26524,7 +26854,7 @@ var define = $__System.amdDefine;
 }));
 
 })();
-$__System.registerDynamic("3d", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("43", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -26541,42 +26871,98 @@ $__System.registerDynamic("3d", [], true, function ($__require, exports, module)
     exports.User = User;
     return module.exports;
 });
-$__System.registerDynamic("3e", ["37", "3d", "38"], true, function ($__require, exports, module) {
+$__System.registerDynamic("3a", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
-    var http_1 = $__require("37");
-    var user_model_1 = $__require("3d");
-    var BehaviorSubject_1 = $__require("38");
     var GITHUB_API_ENDPOINT = "https://api.github.com";
-    var USER_SESSION_STORAGE_KEY = "apiman.studio.services.github-auth.user";
+    /**
+     * An abstract base class for services that need to make API calls to Github.
+     */
+    var AbstractGithubService = function () {
+        function AbstractGithubService() {}
+        /**
+         * Creates a github API endpoint from the api path and params.
+         * @param path
+         * @param params
+         * @return {string}
+         */
+        AbstractGithubService.prototype.endpoint = function (path, params) {
+            if (params) {
+                for (var key in params) {
+                    var value = params[key];
+                    path = path.replace(":" + key, value);
+                }
+            }
+            return GITHUB_API_ENDPOINT + path;
+        };
+        return AbstractGithubService;
+    }();
+    exports.AbstractGithubService = AbstractGithubService;
+    return module.exports;
+});
+$__System.registerDynamic("3e", ["37", "43", "38", "3a"], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var __extends = this && this.__extends || function (d, b) {
+        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+    var http_1 = $__require("37");
+    var user_model_1 = $__require("43");
+    var BehaviorSubject_1 = $__require("38");
+    var github_1 = $__require("3a");
+    var USER_LOCAL_STORAGE_KEY = "apiman.studio.services.github-auth.user";
     var CREDENTIALS_SESSION_STORAGE_KEY = "apiman.studio.services.github-auth.credentials";
+    var PAT_LOCAL_STORAGE_KEY = "apiman.studio.services.github-auth.pat";
+    var OLD_PATS_LOCAL_STORAGE_KEY = "apiman.studio.services.github-auth.old-pats";
+    var GithubPersonalAccessToken = function () {
+        function GithubPersonalAccessToken() {}
+        return GithubPersonalAccessToken;
+    }();
     var GithubAuthenticationCredentials = function () {
         function GithubAuthenticationCredentials() {}
         return GithubAuthenticationCredentials;
     }();
+    exports.GithubAuthenticationCredentials = GithubAuthenticationCredentials;
     /**
      * An implementation of the IAuthenticationService that uses BASIC authentication to
      * authenticate into github.  The app must get the credentials from the user via a
      * custom login form.  The credentials are then used whenever making API calls to
      * github.
      */
-    var GithubAuthenticationService = function () {
+    var GithubAuthenticationService = function (_super) {
+        __extends(GithubAuthenticationService, _super);
         /**
          * Constructor.
          * @param http
          */
         function GithubAuthenticationService(http) {
+            _super.call(this);
             this.http = http;
             this._authenticated = new BehaviorSubject_1.BehaviorSubject(false);
             this.authenticated = this._authenticated.asObservable();
             this._authenticatedUser = new BehaviorSubject_1.BehaviorSubject(null);
             this.authenticatedUser = this._authenticatedUser.asObservable();
-            var s_user = sessionStorage.getItem(USER_SESSION_STORAGE_KEY);
+            var s_user = localStorage.getItem(USER_LOCAL_STORAGE_KEY);
             var s_creds = sessionStorage.getItem(CREDENTIALS_SESSION_STORAGE_KEY);
-            if (s_user && s_creds) {
+            var s_pat = localStorage.getItem(PAT_LOCAL_STORAGE_KEY);
+            if (s_user && s_pat) {
+                var user = JSON.parse(s_user);
+                var pat = JSON.parse(s_pat);
+                this.personalAccessToken = pat;
+                this._authenticated.next(true);
+                this._authenticatedUser.next(user);
+                this.verifyAuthenticatedUser();
+            } else if (s_user && s_creds) {
                 var user = JSON.parse(s_user);
                 this.githubCredentials = JSON.parse(s_creds);
                 this._authenticated.next(true);
@@ -26609,10 +26995,113 @@ $__System.registerDynamic("3e", ["37", "3d", "38"], true, function ($__require, 
         GithubAuthenticationService.prototype.login = function (username, credential) {
             var _this = this;
             console.info("[GithubAuthenticationService] logging in user %s", username);
-            var url = GITHUB_API_ENDPOINT + "/user";
-            var authHeader = "Basic " + btoa(username + ":" + credential);
+            var loginName = username;
+            var password;
+            var twoFactorToken;
+            if (credential instanceof GithubAuthenticationCredentials) {
+                password = credential.password;
+                twoFactorToken = credential.twoFactorToken;
+            } else {
+                password = credential;
+            }
+            if (twoFactorToken) {
+                var basicAuthHeader = "Basic " + btoa(loginName + ":" + password);
+                var url = this.endpoint("/authorizations");
+                var headers_1 = new http_1.Headers({ 'Content-Type': 'application/json', 'Authorization': basicAuthHeader, 'X-GitHub-OTP': twoFactorToken });
+                var options = new http_1.RequestOptions({ headers: headers_1 });
+                return this.http.post(url, {
+                    "scopes": ["user:email", "repo", "gist", "read:org"],
+                    "note": "APIMan Studio (" + new Date().toLocaleDateString() + "@" + new Date().toLocaleTimeString() + ")"
+                }, options).map(function (response) {
+                    var pat = response.json();
+                    console.info("[GithubAuthenticationService] Authorization token obtained: %o", pat);
+                    return pat;
+                }).toPromise().then(function (pat) {
+                    _this.cleanOldPATs(headers_1);
+                    _this.personalAccessToken = pat;
+                    localStorage.setItem(PAT_LOCAL_STORAGE_KEY, JSON.stringify(pat));
+                    var tokenAuthHeader = "token " + pat.token;
+                    return _this.fetchAuthenticatedUser(tokenAuthHeader).then(function (user) {
+                        console.info("[GithubAuthenticationService] call to /user succeeded with user: %o", user);
+                        _this._authenticated.next(true);
+                        _this._authenticatedUser.next(user);
+                        localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user));
+                        return user;
+                    });
+                }).catch(function (reason) {
+                    var errorMessage = reason.statusText;
+                    console.info("[GithubAuthenticationService] call to /user failed with: %o", reason);
+                    if (reason.status === 401) {
+                        errorMessage = reason.json().message;
+                    }
+                    return Promise.reject(errorMessage);
+                });
+            } else {
+                var authHeader = "Basic " + btoa(loginName + ":" + password);
+                return this.fetchAuthenticatedUser(authHeader).then(function (user) {
+                    console.info("[GithubAuthenticationService] call to /user succeeded with user: %o", user);
+                    _this._authenticated.next(true);
+                    _this._authenticatedUser.next(user);
+                    // Store the credentials and user in session storage.  If the user reloads the page,
+                    // we will pull these out of session storage rather than require the user login again.
+                    _this.githubCredentials = new GithubAuthenticationCredentials();
+                    _this.githubCredentials.login = username;
+                    _this.githubCredentials.password = credential;
+                    localStorage.setItem(USER_LOCAL_STORAGE_KEY, JSON.stringify(user));
+                    sessionStorage.setItem(CREDENTIALS_SESSION_STORAGE_KEY, JSON.stringify(_this.githubCredentials));
+                    // Return the user.
+                    return user;
+                }).catch(function (reason) {
+                    var errorMessage = reason.statusText;
+                    console.info("[GithubAuthenticationService] call to /user failed with: %o", reason);
+                    if (reason.status === 401) {
+                        errorMessage = reason.json().message;
+                    }
+                    return Promise.reject(errorMessage);
+                });
+            }
+        };
+        /**
+         * Called to log the user out.  In this case, we simply remove the credentials from the session
+         * storage object and also reset the authenticated flag and the authenticatedUser.
+         */
+        GithubAuthenticationService.prototype.logout = function () {
+            sessionStorage.removeItem(CREDENTIALS_SESSION_STORAGE_KEY);
+            localStorage.removeItem(PAT_LOCAL_STORAGE_KEY);
+            localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
+            if (this.personalAccessToken) {
+                var val = localStorage.getItem(OLD_PATS_LOCAL_STORAGE_KEY);
+                var oldPATs = [];
+                if (val) {
+                    var oldPATs_1 = JSON.parse(val);
+                }
+                oldPATs.push(this.personalAccessToken.id);
+                localStorage.setItem(OLD_PATS_LOCAL_STORAGE_KEY, JSON.stringify(oldPATs));
+            }
+            location.reload(true);
+        };
+        /**
+         * Injects the authentication header into the given headers object.
+         * @param headers
+         */
+        GithubAuthenticationService.prototype.injectAuthHeaders = function (headers) {
+            var authHeader;
+            if (this.personalAccessToken) {
+                authHeader = "token " + this.personalAccessToken.token;
+            } else {
+                authHeader = "Basic " + btoa(this.githubCredentials.login + ":" + this.githubCredentials.password);
+            }
+            headers.set("Authorization", authHeader);
+        };
+        /**
+         * Dynamically fetch information about the authenticated user.
+         * @param authHeader
+         */
+        GithubAuthenticationService.prototype.fetchAuthenticatedUser = function (authHeader) {
+            var url = this.endpoint("/user");
             var headers = new http_1.Headers({ 'Content-Type': 'application/json', 'Authorization': authHeader });
             var options = new http_1.RequestOptions({ headers: headers });
+            console.info("[GithubAuthenticationService] Fetching authenticated user information.");
             return this.http.get(url, options).map(function (response) {
                 console.info("[GithubAuthenticationService] retrieved JSON data, mapping to User object");
                 var user = new user_model_1.User();
@@ -26623,408 +27112,107 @@ $__System.registerDynamic("3e", ["37", "3d", "38"], true, function ($__require, 
                 user.name = jdata.name;
                 user.username = jdata.login;
                 return user;
-            }).toPromise().then(function (user) {
-                console.info("[GithubAuthenticationService] call to /user succeeded with user: %o", user);
-                _this._authenticated.next(true);
-                _this._authenticatedUser.next(user);
-                // Store the credentials and user in session storage.  If the user reloads the page,
-                // we will pull these out of session storage rather than require the user login again.
-                _this.githubCredentials = new GithubAuthenticationCredentials();
-                _this.githubCredentials.login = username;
-                _this.githubCredentials.password = credential;
-                sessionStorage.setItem(USER_SESSION_STORAGE_KEY, JSON.stringify(user));
-                sessionStorage.setItem(CREDENTIALS_SESSION_STORAGE_KEY, JSON.stringify(_this.githubCredentials));
-                // Return the user.
-                return user;
-            }).catch(function (reason) {
-                var errorMessage = reason.statusText;
-                console.info("[GithubAuthenticationService] call to /user failed with: %o", reason);
+            }).toPromise();
+        };
+        /**
+         * Deletes the PAT from github.  This is only done on a logout.  A PAT can also be deleted
+         * manually via the github UI.
+         * @param tokenId id of the PAT to delete
+         * @param headers HTTP request headers to use when accessing the github API
+         * @return {Promise<void>}
+         */
+        GithubAuthenticationService.prototype.deletePersonalAccessToken = function (tokenId, headers) {
+            console.info("[GithubAuthenticationService] Deleting PAT: %o", this.personalAccessToken);
+            var url = this.endpoint("/authorizations/:id", {
+                id: tokenId
+            });
+            var options = new http_1.RequestOptions({ headers: headers });
+            return this.http.delete(url, options).map(function () {
+                return tokenId;
+            }).toPromise();
+        };
+        /**
+         * Asynchronously verifies that the user is authenticated via a personal access token.  This will
+         * simply try to fetch the user's personal information.  If the request fails, then we'll mark the
+         * user as *not* authenticated.  That should trigger a re-login the next time the user navigates
+         * to any page in the UI.
+         */
+        GithubAuthenticationService.prototype.verifyAuthenticatedUser = function () {
+            var tokenAuthHeader = "token " + this.personalAccessToken.token;
+            this.fetchAuthenticatedUser(tokenAuthHeader).catch(function (reason) {
+                console.log("[GithubAuthenticationService] Failed to verify PAT authentication: %o", reason);
                 if (reason.status === 401) {
-                    errorMessage = reason.json().message;
+                    sessionStorage.removeItem(CREDENTIALS_SESSION_STORAGE_KEY);
+                    localStorage.removeItem(PAT_LOCAL_STORAGE_KEY);
+                    localStorage.removeItem(USER_LOCAL_STORAGE_KEY);
+                    location.reload(true);
                 }
-                return Promise.reject(errorMessage);
             });
         };
         /**
-         * Called to log the user out.  In this case, we simply remove the credentials from the session
-         * storage object and also reset the authenticated flag and the authenticatedUser.
+         * Asynchronously delete all old (stale) personal access tokens from github.  We know about old
+         * PATs because we save them in localStorage every time we log out.
+         * @headers the HTTP headers to use when making requests to the github API (contains auth info)
          */
-        GithubAuthenticationService.prototype.logout = function () {
-            sessionStorage.removeItem(USER_SESSION_STORAGE_KEY);
-            sessionStorage.removeItem(CREDENTIALS_SESSION_STORAGE_KEY);
-            location.reload(true);
+        GithubAuthenticationService.prototype.cleanOldPATs = function (headers) {
+            var _this = this;
+            var val = localStorage.getItem(OLD_PATS_LOCAL_STORAGE_KEY);
+            if (val) {
+                var oldPATs = JSON.parse(val);
+                for (var _i = 0, oldPATs_2 = oldPATs; _i < oldPATs_2.length; _i++) {
+                    var oldPAT = oldPATs_2[_i];
+                    this.deletePersonalAccessToken(oldPAT, headers).then(function (tokenId) {
+                        _this.removeOldPATFromLocalStorage(tokenId);
+                    });
+                }
+            }
         };
         /**
-         * Injects the authentication header into the given headers object.
-         * @param headers
+         * Removes the given PAT token id from the list of stale (need to be deleted) PATs saved
+         * in local storage.
+         * @param tokenId
          */
-        GithubAuthenticationService.prototype.injectAuthHeaders = function (headers) {
-            var authHeader = "Basic " + btoa(this.githubCredentials.login + ":" + this.githubCredentials.password);
-            headers.set("Authorization", authHeader);
+        GithubAuthenticationService.prototype.removeOldPATFromLocalStorage = function (tokenId) {
+            var val = localStorage.getItem(OLD_PATS_LOCAL_STORAGE_KEY);
+            if (val) {
+                var oldPATs = JSON.parse(val);
+                var idx = oldPATs.indexOf(tokenId);
+                if (idx != -1) {
+                    oldPATs.splice(idx, 1);
+                }
+                localStorage.setItem(OLD_PATS_LOCAL_STORAGE_KEY, JSON.stringify(oldPATs));
+            }
         };
         return GithubAuthenticationService;
-    }();
+    }(github_1.AbstractGithubService);
     exports.GithubAuthenticationService = GithubAuthenticationService;
     return module.exports;
 });
-$__System.registerDynamic("3f", ["37", "2a", "3e"], true, function ($__require, exports, module) {
+$__System.registerDynamic("2d", ["7", "2a", "2c", "3e"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
-    var http_1 = $__require("37");
+    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
+        var c = arguments.length,
+            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+            d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = this && this.__metadata || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var __param = this && this.__param || function (paramIndex, decorator) {
+        return function (target, key) {
+            decorator(target, key, paramIndex);
+        };
+    };
+    var core_1 = $__require("7");
     var auth_service_1 = $__require("2a");
+    var router_1 = $__require("2c");
     var auth_github_service_1 = $__require("3e");
-    function AuthenticationServiceFactory(http) {
-        return new auth_github_service_1.GithubAuthenticationService(http);
-    }
-    ;
-    exports.AuthenticationServiceProvider = {
-        provide: auth_service_1.IAuthenticationService,
-        useFactory: AuthenticationServiceFactory,
-        deps: [http_1.Http]
-    };
-    return module.exports;
-});
-$__System.registerDynamic("32", ["7", "3b"], true, function ($__require, exports, module) {
-    "use strict";
-
-    var define,
-        global = this || self,
-        GLOBAL = global;
-    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
-        var c = arguments.length,
-            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
-            d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata = this && this.__metadata || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var __param = this && this.__param || function (paramIndex, decorator) {
-        return function (target, key) {
-            decorator(target, key, paramIndex);
-        };
-    };
-    var core_1 = $__require("7");
-    var apis_service_1 = $__require("3b");
-    /**
-     * Resolves the recent APIs prior to loading the dashboard screen.
-     */
-    var RecentApisResolve = function () {
-        function RecentApisResolve(apis) {
-            this.apis = apis;
-        }
-        RecentApisResolve.prototype.resolve = function (route) {
-            var _this = this;
-            var promise = new Promise(function (resolve) {
-                var subscription = _this.apis.getRecentApis().subscribe(function (data) {
-                    resolve(data);
-                    subscription.unsubscribe();
-                });
-            });
-            return promise;
-        };
-        RecentApisResolve = __decorate([core_1.Injectable(), __param(0, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [Object])], RecentApisResolve);
-        return RecentApisResolve;
-    }();
-    exports.RecentApisResolve = RecentApisResolve;
-    return module.exports;
-});
-$__System.registerDynamic("33", ["7", "3b"], true, function ($__require, exports, module) {
-    "use strict";
-
-    var define,
-        global = this || self,
-        GLOBAL = global;
-    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
-        var c = arguments.length,
-            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
-            d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata = this && this.__metadata || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var __param = this && this.__param || function (paramIndex, decorator) {
-        return function (target, key) {
-            decorator(target, key, paramIndex);
-        };
-    };
-    var core_1 = $__require("7");
-    var apis_service_1 = $__require("3b");
-    /**
-     * Resolves an API by its id.
-     */
-    var ApiResolve = function () {
-        function ApiResolve(apis) {
-            this.apis = apis;
-        }
-        ApiResolve.prototype.resolve = function (route) {
-            var apiId = route.params["apiId"];
-            console.info("[ApiResolve] Resolving API with id: " + apiId);
-            return this.apis.getApi(apiId);
-        };
-        ApiResolve = __decorate([core_1.Injectable(), __param(0, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [Object])], ApiResolve);
-        return ApiResolve;
-    }();
-    exports.ApiResolve = ApiResolve;
-    return module.exports;
-});
-$__System.registerDynamic("34", ["7", "2c", "2a"], true, function ($__require, exports, module) {
-    "use strict";
-
-    var define,
-        global = this || self,
-        GLOBAL = global;
-    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
-        var c = arguments.length,
-            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
-            d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata = this && this.__metadata || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var __param = this && this.__param || function (paramIndex, decorator) {
-        return function (target, key) {
-            decorator(target, key, paramIndex);
-        };
-    };
-    var core_1 = $__require("7");
-    var router_1 = $__require("2c");
-    var auth_service_1 = $__require("2a");
-    var AuthenticationCanActivateGuard = function () {
-        function AuthenticationCanActivateGuard(authService, router) {
-            var _this = this;
-            this.authService = authService;
-            this.router = router;
-            this.sub = authService.isAuthenticated().subscribe(function (value) {
-                _this.isAuthenticated = value;
-            });
-        }
-        AuthenticationCanActivateGuard.prototype.canActivate = function () {
-            if (!this.isAuthenticated) {
-                var path = location.pathname;
-                var query = location.search.substring(1);
-                sessionStorage.setItem("apiman.studio.pages.login.redirect-to.path", path);
-                sessionStorage.setItem("apiman.studio.pages.login.redirect-to.query", query);
-                this.router.navigate(["/login"]);
-            }
-            return this.isAuthenticated;
-        };
-        AuthenticationCanActivateGuard = __decorate([core_1.Injectable(), __param(0, core_1.Inject(auth_service_1.IAuthenticationService)), __metadata('design:paramtypes', [Object, router_1.Router])], AuthenticationCanActivateGuard);
-        return AuthenticationCanActivateGuard;
-    }();
-    exports.AuthenticationCanActivateGuard = AuthenticationCanActivateGuard;
-    return module.exports;
-});
-$__System.registerDynamic("40", ["7", "2a"], true, function ($__require, exports, module) {
-    "use strict";
-
-    var define,
-        global = this || self,
-        GLOBAL = global;
-    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
-        var c = arguments.length,
-            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
-            d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata = this && this.__metadata || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var __param = this && this.__param || function (paramIndex, decorator) {
-        return function (target, key) {
-            decorator(target, key, paramIndex);
-        };
-    };
-    var core_1 = $__require("7");
-    var auth_service_1 = $__require("2a");
-    var NavHeaderComponent = function () {
-        function NavHeaderComponent(authService) {
-            this.authService = authService;
-        }
-        NavHeaderComponent.prototype.ngOnInit = function () {};
-        NavHeaderComponent.prototype.user = function () {
-            return this.authService.getAuthenticatedUser();
-        };
-        NavHeaderComponent.prototype.logout = function () {
-            this.authService.logout();
-        };
-        NavHeaderComponent = __decorate([core_1.Component({
-            moduleId: module.id,
-            selector: 'nav-header',
-            template: "\n      <nav class=\"navbar navbar-default navbar-pf\" role=\"navigation\">\n          <div class=\"navbar-header\">\n              <button type=\"button\" class=\"navbar-toggle\" data-toggle=\"collapse\" data-target=\".navbar-collapse-1\">\n                  <span class=\"sr-only\">Toggle navigation</span>\n                  <span class=\"icon-bar\"></span>\n                  <span class=\"icon-bar\"></span>\n                  <span class=\"icon-bar\"></span>\n              </button>\n              <a class=\"navbar-brand\" href=\"\" style=\"padding-top: 4px; padding-bottom: 2px\">\n                  <div id=\"navbar-logo\" class=\"navbar-brand-logo\">API Design Studio</div>\n              </a>\n          </div>\n          <div class=\"collapse navbar-collapse navbar-collapse-1\">\n              <ul class=\"nav navbar-nav navbar-utility\">\n                  <li class=\"dropdown\">\n                      <a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">\n                          <span class=\"pficon pficon-user\"></span>\n                          <span>{{ (user() | async).name }}</span>\n                          <b class=\"caret\"></b>\n                      </a>\n                      <ul class=\"dropdown-menu\">\n                          <li><a aria-disabled=\"true\" class=\"disabled\" href=\"#\">Profile</a></li>\n                          <li class=\"divider\"></li>\n                          <li><a (click)=\"logout()\">Logout</a></li>\n                      </ul></li>\n              </ul>\n          </div>\n      </nav>\n    ",
-            styles: ["\n      .navbar .navbar-brand .navbar-brand-logo {\n        font-size: 12px;\n        font-weight: bold;\n        line-height: 10px;\n        color: white;\n      }\n      .navbar .navbar-brand .navbar-brand-logo:hover {\n        color: gold;\n      }\n      .navbar .dropdown-menu a {\n        cursor: pointer;\n      }\n      .navbar .dropdown-menu a.disabled {\n        cursor: not-allowed;\n        color: #999;\n      }\n      #navbar-logo {\n        background-image: url('/assets/api-designer-logo.png');\n        height: 20px;\n        width: 261px;\n        color: transparent;\n        text-indent: -5000px;\n      }\n    "]
-        }), __param(0, core_1.Inject(auth_service_1.IAuthenticationService)), __metadata('design:paramtypes', [Object])], NavHeaderComponent);
-        return NavHeaderComponent;
-    }();
-    exports.NavHeaderComponent = NavHeaderComponent;
-    return module.exports;
-});
-$__System.registerDynamic("41", ["7", "2c", "3b"], true, function ($__require, exports, module) {
-    "use strict";
-
-    var define,
-        global = this || self,
-        GLOBAL = global;
-    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
-        var c = arguments.length,
-            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
-            d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata = this && this.__metadata || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var __param = this && this.__param || function (paramIndex, decorator) {
-        return function (target, key) {
-            decorator(target, key, paramIndex);
-        };
-    };
-    var core_1 = $__require("7");
-    var router_1 = $__require("2c");
-    var apis_service_1 = $__require("3b");
-    /**
-     * Models the sub-menus off the main left-hand vertical nav.
-     */
-    var VerticalNavSubMenuType;
-    (function (VerticalNavSubMenuType) {
-        VerticalNavSubMenuType[VerticalNavSubMenuType["None"] = 0] = "None";
-        VerticalNavSubMenuType[VerticalNavSubMenuType["Dashboard"] = 1] = "Dashboard";
-        VerticalNavSubMenuType[VerticalNavSubMenuType["APIs"] = 2] = "APIs";
-    })(VerticalNavSubMenuType || (VerticalNavSubMenuType = {}));
-    var VerticalNavComponent = function () {
-        function VerticalNavComponent(router, apis) {
-            this.router = router;
-            this.apis = apis;
-            this.subMenuTypes = VerticalNavSubMenuType;
-            this.currentSubMenu = VerticalNavSubMenuType.None;
-        }
-        VerticalNavComponent.prototype.ngOnInit = function () {
-            var _this = this;
-            console.log("Subscribing to router events.");
-            this.router.events.subscribe(function (event) {
-                if (event instanceof router_1.NavigationStart) {
-                    _this.currentSubMenu = VerticalNavSubMenuType.None;
-                }
-            });
-        };
-        /**
-         * Returns true if the currently active route is the dashboard.
-         * @returns {boolean}
-         */
-        VerticalNavComponent.prototype.isDashboardRoute = function () {
-            return this.router.isActive("/", true);
-        };
-        /**
-         * Returns true if the currently active route is /apis/*
-         * @returns {boolean}
-         */
-        VerticalNavComponent.prototype.isAPIsRoute = function () {
-            return this.router.isActive("/apis", false);
-        };
-        /**
-         * Called when the user clicks the vertical menu shade (the grey shaded area behind the submenu div that
-         * is displayed when a sub-menu is selected).  Clicking the shade makes the sub-menu div go away.
-         */
-        VerticalNavComponent.prototype.onShadeClick = function () {
-            this.currentSubMenu = VerticalNavSubMenuType.None;
-        };
-        /**
-         * Toggles a sub-menu off the main vertical left-hand menu bar.  If the sub-menu is
-         * already selected, it de-selects it.
-         * @param subMenu the sub-menu to toggle
-         */
-        VerticalNavComponent.prototype.toggleSubMenu = function (subMenu) {
-            if (this.currentSubMenu === subMenu) {
-                this.currentSubMenu = VerticalNavSubMenuType.None;
-            } else {
-                this.currentSubMenu = subMenu;
-            }
-        };
-        VerticalNavComponent = __decorate([core_1.Component({
-            moduleId: module.id,
-            selector: 'vertical-nav',
-            template: "\n      <div id=\"api-vertical-nav-wrapper\">\n\n          <div id=\"api-nav-menu-shade\" *ngIf=\"currentSubMenu != subMenuTypes.None\" (click)=\"onShadeClick()\">\n          </div>\n\n          <div id=\"api-vertical-nav\">\n              <div id=\"api-nav-item-dashboard\" class=\"api-nav-item\" [class.active]=\"isDashboardRoute()\" [class.selected]=\"currentSubMenu === subMenuTypes.Dashboard\" (click)=\"toggleSubMenu(subMenuTypes.Dashboard)\">\n                  <span class=\"fa fa-fw fa-dashboard\"></span>\n                  <div>Dashboard</div>\n              </div>\n              <div id=\"api-nav-item-apis\" class=\"api-nav-item\" [class.active]=\"isAPIsRoute()\" [class.selected]=\"currentSubMenu === subMenuTypes.APIs\" (click)=\"toggleSubMenu(subMenuTypes.APIs)\">\n                  <span class=\"fa fa-fw fa-bolt\"></span>\n                  <div>APIs</div>\n              </div>\n              <div class=\"api-nav-item-filler\">\n              </div>\n          </div>\n\n          <div id=\"api-vertical-nav-details\" *ngIf=\"currentSubMenu != subMenuTypes.None\">\n              <div id=\"api-nav-detail-dashboard\" class=\"api-nav-detail-item\" *ngIf=\"currentSubMenu === subMenuTypes.Dashboard\">\n                  <h3>Dashboard</h3>\n                  <p>Click below to navigate back to the default API Designer dashboard.</p>\n                  <ul>\n                      <li><a routerLink=\"/\">Back to Dashboard</a></li>\n                  </ul>\n              </div>\n              <div id=\"api-nav-detail-apis\" class=\"api-nav-detail-item\" *ngIf=\"currentSubMenu === subMenuTypes.APIs\">\n                  <h3>APIs</h3>\n                  <p class=\"description\">Choose from the actions below or jump directly to one of your starred/favorited APIs.</p>\n                  <h4 class=\"heading\">API Actions</h4>\n                  <div class=\"action\">\n                      <a routerLink=\"/apis\"><span class=\"fa fa-fw fa-search\"></span><span>List All APIs</span></a>\n                  </div>\n                  <div class=\"action\">\n                      <a routerLink=\"/apis/newapi\"><span class=\"fa fa-fw fa-plus\"></span><span>New API</span></a>\n                  </div>\n\n                  <h4 class=\"heading\" *ngIf=\"(apis.getRecentApis() | async).length > 0\">Recent APIs</h4>\n                  <div *ngFor=\"let api of apis.getRecentApis() | async\">\n                      <a [routerLink]=\"['apis', api.id]\"><span class=\"fa fa-fw fa-bolt\"></span><span>{{ api.name }}</span></a>\n                  </div>\n              </div>\n          </div>\n\n      </div>\n    ",
-            styles: ["\n      #api-vertical-nav {\n        position: absolute;\n        left: 0;\n        width: 120px;\n        top: 30px;\n        bottom: 0;\n        background-color: white;\n        overflow: hidden;\n      }\n      #api-vertical-nav .api-nav-item {\n        color: #666;\n        border-bottom: 1px solid #ddd;\n        padding: 15px 10px 15px 10px;\n        text-align: center;\n        border-right: 1px solid #ddd;\n      }\n      #api-vertical-nav .api-nav-item-filler {\n        border-right: 1px solid #ddd;\n        height: 100%;\n      }\n      #api-vertical-nav .api-nav-item:hover {\n        background-color: rgba(0, 0, 55, 0.05);\n        cursor: pointer;\n      }\n      #api-vertical-nav .api-nav-item.active {\n        color: #0088ce;\n      }\n      #api-vertical-nav .api-nav-item.selected {\n        border-right: 1px solid white;\n        color: black;\n        background-color: white;\n      }\n      #api-vertical-nav .api-nav-item > span {\n        font-size: 22px;\n        display: inline-block;\n      }\n      #api-vertical-nav .api-nav-item > div {\n        font-size: 14px;\n      }\n      #api-vertical-nav-details {\n        position: absolute;\n        left: 120px;\n        width: 280px;\n        top: 30px;\n        bottom: 0;\n        background-color: white;\n        border-right: 1px solid #ddd;\n        z-index: 20;\n        padding: 15px;\n      }\n      #api-vertical-nav-details .api-nav-detail-item h3 {\n        margin-top: 0;\n        padding-bottom: 3px;\n        border-bottom: 1px solid #ddd;\n      }\n      #api-vertical-nav-details .api-nav-detail-item p.description {\n        line-height: 17px;\n        padding: 3px;\n      }\n      #api-vertical-nav-details .api-nav-detail-item h4 {\n        font-weight: bold;\n        font-size: 12px;\n        margin-top: 20px;\n      }\n      #api-vertical-nav-details .api-nav-detail-item .action {\n        padding-left: 8px;\n      }\n      #api-nav-menu-shade {\n        position: absolute;\n        left: 120px;\n        right: 0;\n        top: 30px;\n        bottom: 0;\n        z-index: 10;\n        background-color: rgba(0, 0, 0, 0.2);\n      }\n      #api-nav-menu-container {\n        position: absolute;\n        left: 20px;\n        top: 68px;\n        bottom: 0;\n        width: 200px;\n        z-index: 20;\n      }\n      #api-nav-menu-container .api-nav-menu {\n        font-size: 16px;\n        background-color: white;\n      }\n      #api-nav-menu-container .api-nav-menu > a {\n        text-decoration: none;\n      }\n      #api-nav-menu-container .api-nav-menu .menu-item {\n        border-left: 1px solid #ddd;\n        border-right: 1px solid #ddd;\n        border-bottom: 1px solid #ddd;\n        padding: 10px;\n      }\n      #api-nav-menu-container .api-nav-menu .menu-item:hover {\n        background-color: #39a5dc;\n        color: white;\n      }\n      #api-nav-menu-container .api-nav-menu .menu-item > span.fa {\n        margin-right: 5px;\n      }\n    "]
-        }), __param(1, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [router_1.Router, Object])], VerticalNavComponent);
-        return VerticalNavComponent;
-    }();
-    exports.VerticalNavComponent = VerticalNavComponent;
-    return module.exports;
-});
-$__System.registerDynamic("42", ["7"], true, function ($__require, exports, module) {
-    "use strict";
-
-    var define,
-        global = this || self,
-        GLOBAL = global;
-    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
-        var c = arguments.length,
-            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
-            d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata = this && this.__metadata || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var core_1 = $__require("7");
-    var Breadcrumb = function () {
-        function Breadcrumb(label, icon, route) {
-            this.label = label;
-            this.icon = icon;
-            this.route = route;
-        }
-        return Breadcrumb;
-    }();
-    exports.Breadcrumb = Breadcrumb;
-    var BreadcrumbsComponent = function () {
-        function BreadcrumbsComponent() {}
-        __decorate([core_1.Input(), __metadata('design:type', Array)], BreadcrumbsComponent.prototype, "breadcrumbs", void 0);
-        BreadcrumbsComponent = __decorate([core_1.Component({
-            moduleId: module.id,
-            selector: 'breadcrumbs',
-            template: "\n      <div class=\"container-fluid api-breadcrumbs\">\n          <div class=\"row-fluid\">\n              <ol class=\"breadcrumb\">\n                  <li *ngFor=\"let bc of breadcrumbs\" [class.active]=\"bc.route == null\">\n                      <span *ngIf=\"bc.route == null\"><span class=\"fa fa-fw fa-{{ bc.icon }}\"></span><span>{{ bc.label }}</span></span>\n                      <a *ngIf=\"bc.route != null\" [routerLink]=\"bc.route\"><span class=\"fa fa-fw fa-{{ bc.icon }}\"></span><span>{{ bc.label }}</span></a>\n                  </li>\n              </ol>\n          </div>\n      </div>\n    ",
-            styles: ["\n      .api-breadcrumbs {\n        background: white;\n        border-bottom: 1px solid #ccc;\n      }\n      .api-breadcrumbs .api-home-nav {\n        font-size: 22px;\n        padding: 0 10px 0 10px;\n        margin-right: 15px;\n        border-left: 1px solid #ddd;\n        border-right: 1px solid #ddd;\n      }\n      .api-breadcrumbs .api-home-nav:hover {\n        background-color: #39a5dc;\n      }\n      .api-breadcrumbs .api-home-nav:hover a {\n        color: white;\n      }\n      .api-breadcrumbs .breadcrumb {\n        margin-bottom: 0;\n        float: left;\n      }\n    "]
-        }), __metadata('design:paramtypes', [])], BreadcrumbsComponent);
-        return BreadcrumbsComponent;
-    }();
-    exports.BreadcrumbsComponent = BreadcrumbsComponent;
-    return module.exports;
-});
-$__System.registerDynamic("2d", ["7", "2a", "2c"], true, function ($__require, exports, module) {
-    "use strict";
-
-    var define,
-        global = this || self,
-        GLOBAL = global;
-    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
-        var c = arguments.length,
-            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
-            d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata = this && this.__metadata || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var __param = this && this.__param || function (paramIndex, decorator) {
-        return function (target, key) {
-            decorator(target, key, paramIndex);
-        };
-    };
-    var core_1 = $__require("7");
-    var auth_service_1 = $__require("2a");
-    var router_1 = $__require("2c");
     var REMEMBER_USERNAME_KEY = "apiman.studio.pages.login.remember-username";
     var SAVED_USERNAME_KEY = "apiman.studio.pages.login.username";
     /**
@@ -27034,6 +27222,8 @@ $__System.registerDynamic("2d", ["7", "2a", "2c"], true, function ($__require, e
         function LoginPageComponent(authService, router) {
             this.authService = authService;
             this.router = router;
+            this.twoFactorEnabled = false;
+            this.errorIsTwoFactor = false;
             this.authenticating = false;
         }
         LoginPageComponent.prototype.ngOnInit = function () {
@@ -27053,7 +27243,14 @@ $__System.registerDynamic("2d", ["7", "2a", "2c"], true, function ($__require, e
             if (this.rememberUser) {
                 localStorage.setItem(SAVED_USERNAME_KEY, this.username);
             }
-            this.authService.login(this.username, this.password).then(function (user) {
+            var credential = this.password;
+            if (this.twoFactorEnabled) {
+                credential = new auth_github_service_1.GithubAuthenticationCredentials();
+                credential.login = this.username;
+                credential.password = this.password;
+                credential.twoFactorToken = this.twoFactorToken;
+            }
+            this.authService.login(this.username, credential).then(function (user) {
                 console.info("[LoginPageComponent] User successfully logged in: %o", user);
                 _this.authenticating = false;
                 var path = sessionStorage.getItem("apiman.studio.pages.login.redirect-to.path");
@@ -27076,6 +27273,9 @@ $__System.registerDynamic("2d", ["7", "2a", "2c"], true, function ($__require, e
             }).catch(function (reason) {
                 _this.authenticating = false;
                 _this.loginError = reason;
+                var requiresTwoFactor = reason.indexOf("OTP") != -1;
+                _this.twoFactorEnabled = _this.twoFactorEnabled || requiresTwoFactor;
+                _this.errorIsTwoFactor = requiresTwoFactor;
             });
         };
         /**
@@ -27090,13 +27290,17 @@ $__System.registerDynamic("2d", ["7", "2a", "2c"], true, function ($__require, e
          */
         LoginPageComponent.prototype.asRoute = function (path) {
             var index = location.pathname.indexOf("/login");
-            return path.substring(index);
+            var rval = path.substring(index);
+            if (rval.startsWith("/login")) {
+                rval = "/";
+            }
+            return rval;
         };
         LoginPageComponent = __decorate([core_1.Component({
             moduleId: module.id,
             selector: 'login-page',
-            template: "\n      <div class=\"container\" id=\"login-page\">\n          <div class=\"row\">\n              <div class=\"col-sm-12\">\n                  <div id=\"brand\">API Design Studio</div>\n              </div><!--/.col-*-->\n              <div class=\"col-sm-7 col-md-6 col-lg-5 login\">\n                  <form class=\"form-horizontal\" role=\"form\" (submit)=\"login()\" #loginForm=\"ngForm\">\n                      <div class=\"form-group\">\n                          <label for=\"inputUsername\" class=\"col-sm-2 col-md-2 control-label\">Username</label>\n                          <div class=\"col-sm-10 col-md-10\">\n                              <input name=\"username\" type=\"text\" class=\"form-control\" id=\"inputUsername\" required placeholder=\"\" autofocus tabindex=\"1\" [(ngModel)]=\"username\">\n                          </div>\n                      </div>\n                      <div class=\"form-group\">\n                          <label for=\"inputPassword\" class=\"col-sm-2 col-md-2 control-label\">Password</label>\n                          <div class=\"col-sm-10 col-md-10\">\n                              <input name=\"password\" type=\"password\" class=\"form-control\" id=\"inputPassword\" required placeholder=\"\" tabindex=\"2\" [(ngModel)]=\"password\">\n                          </div>\n                      </div>\n                      <div class=\"form-group\">\n                          <div class=\"col-xs-8 col-sm-offset-2 col-sm-6 col-md-offset-2 col-md-6\">\n                              <div class=\"checkbox\">\n                                  <label>\n                                      <input name=\"rememberUser\" type=\"checkbox\" tabindex=\"3\" [(ngModel)]=\"rememberUser\"> Remember username\n                                  </label>\n                              </div>\n                              <span class=\"help-block\"> Forgot <a href=\"https://github.com/password_reset\" tabindex=\"6\">password</a>?</span>\n                          </div>\n                          <div class=\"col-xs-4 col-sm-4 col-md-4 submit\">\n                              <button type=\"submit\" class=\"btn btn-primary btn-lg\" tabindex=\"4\"\n                                      [disabled]=\"!loginForm.form.valid || authenticating\"><span class=\"fa fa-fw fa-github\"></span><span>Log In</span></button>\n                          </div>\n                      </div>\n                  </form>\n              </div>\n              <div class=\"col-sm-5 col-md-6 col-lg-7 details\">\n                  <div *ngIf=\"loginError\" class=\"alert alert-danger\">\n                      <span class=\"pficon pficon-error-circle-o\"></span>\n                      <strong>Error Logging In!</strong>\n                      <span>{{ loginError }}</span>\n                  </div>\n                  <div *ngIf=\"!loginError\">\n                      <p>\n                          <strong>Welcome to the API Design Studio!</strong>\n                          <span>Use this form to log into the application.  Use your <a href=\"https://www.github.com\">Github</a> credentials for this!  Note that we store your credentials in the browser \"sessionStorage\" only - so we think this is safe for you to do.  But if you don't feel comfortable doing that, we understand!</span>\n                      </p>\n                      <p style=\"margin-top: 15px\">\n                          Don't yet have a github account?  It's easy to <a href=\"https://github.com/join\">sign up for a new account</a>!\n                      </p>\n                  </div>\n              </div>\n          </div>\n      </div>\n    ",
-            styles: ["\n      #login-page #brand {\n        background-image: url('/assets/login-logo.png');\n        width: 275px;\n        height: 44px;\n        color: transparent;\n        font-size: 31px;\n        text-indent: -5000px;\n      }\n    "]
+            template: "\n      <div class=\"container\" id=\"login-page\">\n          <div class=\"row\">\n              <div class=\"col-sm-12\">\n                  <div id=\"brand\">API Design Studio</div>\n              </div><!--/.col-*-->\n              <div class=\"col-sm-7 col-md-6 col-lg-5 login\">\n                  <form class=\"form-horizontal\" role=\"form\" (submit)=\"login()\" #loginForm=\"ngForm\">\n                      <div class=\"form-group\">\n                          <label for=\"inputUsername\" class=\"col-sm-2 col-md-2 control-label\">Username</label>\n                          <div class=\"col-sm-10 col-md-10\">\n                              <input name=\"username\" type=\"text\" class=\"form-control\" id=\"inputUsername\" required placeholder=\"\" autofocus tabindex=\"1\" [(ngModel)]=\"username\">\n                          </div>\n                      </div>\n                      <div class=\"form-group\">\n                          <label for=\"inputPassword\" class=\"col-sm-2 col-md-2 control-label\">Password</label>\n                          <div class=\"col-sm-10 col-md-10\">\n                              <input name=\"password\" type=\"password\" class=\"form-control\" id=\"inputPassword\" required placeholder=\"\" tabindex=\"2\" [(ngModel)]=\"password\">\n                          </div>\n                      </div>\n                      <div class=\"form-group\" *ngIf=\"twoFactorEnabled\">\n                          <label for=\"authToken\" class=\"col-sm-2 col-md-2 control-label\">Auth Token</label>\n                          <div class=\"col-sm-10 col-md-10\">\n                              <input name=\"authToken\" type=\"text\" class=\"form-control\" id=\"authToken\" required placeholder=\"\" tabindex=\"3\" [(ngModel)]=\"twoFactorToken\">\n                          </div>\n                      </div>\n                      <div class=\"form-group\">\n                          <div class=\"col-xs-8 col-sm-offset-2 col-sm-6 col-md-offset-2 col-md-6\">\n                              <div class=\"checkbox\">\n                                  <label>\n                                      <input name=\"rememberUser\" type=\"checkbox\" tabindex=\"4\" [(ngModel)]=\"rememberUser\"> Remember username\n                                  </label>\n                              </div>\n                              <span class=\"help-block\"> Forgot <a href=\"https://github.com/password_reset\" tabindex=\"6\">password</a>?</span>\n                          </div>\n                          <div class=\"col-xs-4 col-sm-4 col-md-4 submit\">\n                              <button type=\"submit\" class=\"btn btn-primary btn-lg\" tabindex=\"5\"\n                                      [disabled]=\"!loginForm.form.valid || authenticating\"><span class=\"fa fa-fw fa-github\"></span><span>Log In</span></button>\n                          </div>\n                      </div>\n                  </form>\n              </div>\n              <div class=\"col-sm-5 col-md-6 col-lg-7 details\">\n                  <div *ngIf=\"loginError && !errorIsTwoFactor\" class=\"alert alert-danger\">\n                      <span class=\"pficon pficon-error-circle-o\"></span>\n                      <strong>Error Logging In!</strong>\n                      <span>{{ loginError }}</span>\n                  </div>\n                  <div *ngIf=\"loginError && errorIsTwoFactor\" class=\"alert alert-info\">\n                      <span class=\"pficon pficon-info\"></span>\n                      <strong>Two Factor Authentication Enabled</strong>\n                      <span>It seems you have <a href=\"https://help.github.com/articles/about-two-factor-authentication/\">two factor authentication</a> enabled in Github.  Please provide your two-factor key to complete the login process.</span>\n                  </div>\n                  <div *ngIf=\"!loginError\">\n                      <p>\n                          <strong>Welcome to the API Design Studio!</strong>\n                          <span>Use this form to log into the application.  Use your <a href=\"https://www.github.com\">Github</a> credentials for this!  Note that we store your credentials in the browser \"sessionStorage\" only - so we think this is safe for you to do.  But if you don't feel comfortable doing that, we understand!</span>\n                      </p>\n                      <p style=\"margin-top: 15px\">\n                          Don't yet have a github account?  It's easy to <a href=\"https://github.com/join\">sign up for a new account</a>!\n                      </p>\n                  </div>\n              </div>\n          </div>\n      </div>\n    ",
+            styles: ["\n      #login-page #brand {\n        background-image: url('/assets/login-logo.png');\n        width: 275px;\n        height: 44px;\n        color: transparent;\n        font-size: 31px;\n        text-indent: -5000px;\n      }\n      #login-page .details .alert-info {\n        background-color: #cccccc;\n        color: #333;\n      }\n    "]
         }), __param(0, core_1.Inject(auth_service_1.IAuthenticationService)), __metadata('design:paramtypes', [Object, router_1.Router])], LoginPageComponent);
         return LoginPageComponent;
     }();
@@ -27165,7 +27369,7 @@ $__System.registerDynamic("2e", ["7", "2c", "2a"], true, function ($__require, e
     exports.DashboardPageComponent = DashboardPageComponent;
     return module.exports;
 });
-$__System.registerDynamic("2f", ["7", "3b"], true, function ($__require, exports, module) {
+$__System.registerDynamic("2f", ["7", "3c"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -27187,7 +27391,7 @@ $__System.registerDynamic("2f", ["7", "3b"], true, function ($__require, exports
         };
     };
     var core_1 = $__require("7");
-    var apis_service_1 = $__require("3b");
+    var apis_service_1 = $__require("3c");
     var API_FILTERS_KEY = "apiman.studio.pages.apis.filters";
     var Filters = function () {
         function Filters(params) {
@@ -27295,7 +27499,7 @@ $__System.registerDynamic("2f", ["7", "3b"], true, function ($__require, exports
     exports.ApisPageComponent = ApisPageComponent;
     return module.exports;
 });
-$__System.registerDynamic("30", ["7", "2c", "3b"], true, function ($__require, exports, module) {
+$__System.registerDynamic("30", ["7", "2c", "3c"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -27318,7 +27522,7 @@ $__System.registerDynamic("30", ["7", "2c", "3b"], true, function ($__require, e
     };
     var core_1 = $__require("7");
     var router_1 = $__require("2c");
-    var apis_service_1 = $__require("3b");
+    var apis_service_1 = $__require("3c");
     var NewApiPageComponent = function () {
         /**
          * Constructor.
@@ -27360,7 +27564,7 @@ $__System.registerDynamic("30", ["7", "2c", "3b"], true, function ($__require, e
 (function() {
 var define = $__System.amdDefine;
 (function(global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core')) : typeof define === 'function' && define.amd ? define("3c", ["exports", "7"], factory) : (factory((global.ng = global.ng || {}, global.ng.common = global.ng.common || {}), global.ng.core));
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core')) : typeof define === 'function' && define.amd ? define("42", ["exports", "7"], factory) : (factory((global.ng = global.ng || {}, global.ng.common = global.ng.common || {}), global.ng.core));
 }(this, function(exports, _angular_core) {
   'use strict';
   var PlatformLocation = (function() {
@@ -29918,7 +30122,7 @@ var define = $__System.amdDefine;
 }));
 
 })();
-$__System.registerDynamic('43', ['17', 'd', '44'], true, function ($__require, exports, module) {
+$__System.registerDynamic('44', ['17', 'd', '45'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -29933,7 +30137,7 @@ $__System.registerDynamic('43', ['17', 'd', '44'], true, function ($__require, e
     };
     var root_1 = $__require('17');
     var Observable_1 = $__require('d');
-    var iterator_1 = $__require('44');
+    var iterator_1 = $__require('45');
     /**
      * We need this JSDoc comment for affecting ESDoc.
      * @extends {Ignored}
@@ -30100,7 +30304,7 @@ $__System.registerDynamic('43', ['17', 'd', '44'], true, function ($__require, e
 
     return module.exports;
 });
-$__System.registerDynamic('45', ['d', '46', '47'], true, function ($__require, exports, module) {
+$__System.registerDynamic('46', ['d', '47', '48'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30114,8 +30318,8 @@ $__System.registerDynamic('45', ['d', '46', '47'], true, function ($__require, e
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Observable_1 = $__require('d');
-    var ScalarObservable_1 = $__require('46');
-    var EmptyObservable_1 = $__require('47');
+    var ScalarObservable_1 = $__require('47');
+    var EmptyObservable_1 = $__require('48');
     /**
      * We need this JSDoc comment for affecting ESDoc.
      * @extends {Ignored}
@@ -30182,7 +30386,7 @@ $__System.registerDynamic('45', ['d', '46', '47'], true, function ($__require, e
 
     return module.exports;
 });
-$__System.registerDynamic('48', ['d'], true, function ($__require, exports, module) {
+$__System.registerDynamic('49', ['d'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30316,7 +30520,7 @@ $__System.registerDynamic('48', ['d'], true, function ($__require, exports, modu
 
     return module.exports;
 });
-$__System.registerDynamic('49', ['1c', '48'], true, function ($__require, exports, module) {
+$__System.registerDynamic('4a', ['1c', '49'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30330,7 +30534,7 @@ $__System.registerDynamic('49', ['1c', '48'], true, function ($__require, export
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Subscriber_1 = $__require('1c');
-    var Notification_1 = $__require('48');
+    var Notification_1 = $__require('49');
     /**
      * @see {@link Notification}
      *
@@ -30408,7 +30612,7 @@ $__System.registerDynamic('49', ['1c', '48'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic('4a', ['4b', '4c', '4d', '43', '4e', '45', '44', 'd', '49', '4f'], true, function ($__require, exports, module) {
+$__System.registerDynamic('4b', ['4c', '4d', '4e', '44', '4f', '46', '45', 'd', '4a', '50'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30421,16 +30625,16 @@ $__System.registerDynamic('4a', ['4b', '4c', '4d', '43', '4e', '45', '44', 'd', 
         }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    var isArray_1 = $__require('4b');
-    var isPromise_1 = $__require('4c');
-    var PromiseObservable_1 = $__require('4d');
-    var IteratorObservable_1 = $__require('43');
-    var ArrayObservable_1 = $__require('4e');
-    var ArrayLikeObservable_1 = $__require('45');
-    var iterator_1 = $__require('44');
+    var isArray_1 = $__require('4c');
+    var isPromise_1 = $__require('4d');
+    var PromiseObservable_1 = $__require('4e');
+    var IteratorObservable_1 = $__require('44');
+    var ArrayObservable_1 = $__require('4f');
+    var ArrayLikeObservable_1 = $__require('46');
+    var iterator_1 = $__require('45');
     var Observable_1 = $__require('d');
-    var observeOn_1 = $__require('49');
-    var observable_1 = $__require('4f');
+    var observeOn_1 = $__require('4a');
+    var observable_1 = $__require('50');
     var isArrayLike = function (x) {
         return x && typeof x.length === 'number';
     };
@@ -30531,19 +30735,19 @@ $__System.registerDynamic('4a', ['4b', '4c', '4d', '43', '4e', '45', '44', 'd', 
 
     return module.exports;
 });
-$__System.registerDynamic("50", ["4a"], true, function ($__require, exports, module) {
+$__System.registerDynamic("51", ["4b"], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
-  var FromObservable_1 = $__require("4a");
+  var FromObservable_1 = $__require("4b");
   exports.from = FromObservable_1.FromObservable.create;
   
 
   return module.exports;
 });
-$__System.registerDynamic("46", ["d"], true, function ($__require, exports, module) {
+$__System.registerDynamic("47", ["d"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30612,7 +30816,7 @@ $__System.registerDynamic("46", ["d"], true, function ($__require, exports, modu
 
     return module.exports;
 });
-$__System.registerDynamic("47", ["d"], true, function ($__require, exports, module) {
+$__System.registerDynamic("48", ["d"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30696,7 +30900,7 @@ $__System.registerDynamic("47", ["d"], true, function ($__require, exports, modu
 
     return module.exports;
 });
-$__System.registerDynamic("51", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("52", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30710,7 +30914,7 @@ $__System.registerDynamic("51", [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('4e', ['d', '46', '47', '51'], true, function ($__require, exports, module) {
+$__System.registerDynamic('4f', ['d', '47', '48', '52'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30724,9 +30928,9 @@ $__System.registerDynamic('4e', ['d', '46', '47', '51'], true, function ($__requ
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Observable_1 = $__require('d');
-    var ScalarObservable_1 = $__require('46');
-    var EmptyObservable_1 = $__require('47');
-    var isScheduler_1 = $__require('51');
+    var ScalarObservable_1 = $__require('47');
+    var EmptyObservable_1 = $__require('48');
+    var isScheduler_1 = $__require('52');
     /**
      * We need this JSDoc comment for affecting ESDoc.
      * @extends {Ignored}
@@ -30841,19 +31045,19 @@ $__System.registerDynamic('4e', ['d', '46', '47', '51'], true, function ($__requ
 
     return module.exports;
 });
-$__System.registerDynamic("52", ["4e"], true, function ($__require, exports, module) {
+$__System.registerDynamic("53", ["4f"], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
-  var ArrayObservable_1 = $__require("4e");
+  var ArrayObservable_1 = $__require("4f");
   exports.of = ArrayObservable_1.ArrayObservable.of;
   
 
   return module.exports;
 });
-$__System.registerDynamic("53", ["1c"], true, function ($__require, exports, module) {
+$__System.registerDynamic("54", ["1c"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31026,7 +31230,7 @@ $__System.registerDynamic('23', ['1c'], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('54', ['26', '25'], true, function ($__require, exports, module) {
+$__System.registerDynamic('55', ['26', '25'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31198,7 +31402,7 @@ $__System.registerDynamic('54', ['26', '25'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic('55', ['1c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('56', ['1c'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31432,7 +31636,7 @@ $__System.registerDynamic("25", ["1c"], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('4c', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('4d', [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31446,7 +31650,7 @@ $__System.registerDynamic('4c', [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('44', ['17'], true, function ($__require, exports, module) {
+$__System.registerDynamic('45', ['17'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31482,7 +31686,7 @@ $__System.registerDynamic('44', ['17'], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic("56", ["1c"], true, function ($__require, exports, module) {
+$__System.registerDynamic("57", ["1c"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31528,19 +31732,19 @@ $__System.registerDynamic("56", ["1c"], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('26', ['17', '4b', '4c', 'd', '44', '56', '4f'], true, function ($__require, exports, module) {
+$__System.registerDynamic('26', ['17', '4c', '4d', 'd', '45', '57', '50'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
     var root_1 = $__require('17');
-    var isArray_1 = $__require('4b');
-    var isPromise_1 = $__require('4c');
+    var isArray_1 = $__require('4c');
+    var isPromise_1 = $__require('4d');
     var Observable_1 = $__require('d');
-    var iterator_1 = $__require('44');
-    var InnerSubscriber_1 = $__require('56');
-    var observable_1 = $__require('4f');
+    var iterator_1 = $__require('45');
+    var InnerSubscriber_1 = $__require('57');
+    var observable_1 = $__require('50');
     function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
         var destination = new InnerSubscriber_1.InnerSubscriber(outerSubscriber, outerValue, outerIndex);
         if (destination.closed) {
@@ -31607,7 +31811,7 @@ $__System.registerDynamic('26', ['17', '4b', '4c', 'd', '44', '56', '4f'], true,
 
     return module.exports;
 });
-$__System.registerDynamic('57', ['25', '26'], true, function ($__require, exports, module) {
+$__System.registerDynamic('58', ['25', '26'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31728,13 +31932,13 @@ $__System.registerDynamic('57', ['25', '26'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic("58", ["57"], true, function ($__require, exports, module) {
+$__System.registerDynamic("59", ["58"], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
-  var mergeAll_1 = $__require("57");
+  var mergeAll_1 = $__require("58");
   /**
    * Converts a higher-order Observable into a first-order Observable by
    * concatenating the inner Observables in order.
@@ -31785,7 +31989,7 @@ $__System.registerDynamic("58", ["57"], true, function ($__require, exports, mod
 
   return module.exports;
 });
-$__System.registerDynamic('59', ['1c', '5a'], true, function ($__require, exports, module) {
+$__System.registerDynamic('5a', ['1c', '5b'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31799,7 +32003,7 @@ $__System.registerDynamic('59', ['1c', '5a'], true, function ($__require, export
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Subscriber_1 = $__require('1c');
-    var EmptyError_1 = $__require('5a');
+    var EmptyError_1 = $__require('5b');
     /**
      * Emits only the first value (or the first value that meets some condition)
      * emitted by the source Observable.
@@ -31939,7 +32143,7 @@ $__System.registerDynamic('59', ['1c', '5a'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic('4d', ['17', 'd'], true, function ($__require, exports, module) {
+$__System.registerDynamic('4e', ['17', 'd'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -32071,19 +32275,19 @@ $__System.registerDynamic('4d', ['17', 'd'], true, function ($__require, exports
 
     return module.exports;
 });
-$__System.registerDynamic("e", ["4d"], true, function ($__require, exports, module) {
+$__System.registerDynamic("e", ["4e"], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
-  var PromiseObservable_1 = $__require("4d");
+  var PromiseObservable_1 = $__require("4e");
   exports.fromPromise = PromiseObservable_1.PromiseObservable.create;
   
 
   return module.exports;
 });
-$__System.registerDynamic('5a', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('5b', [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -32121,7 +32325,7 @@ $__System.registerDynamic('5a', [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('5b', ['1c', '5a'], true, function ($__require, exports, module) {
+$__System.registerDynamic('5c', ['1c', '5b'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -32135,7 +32339,7 @@ $__System.registerDynamic('5b', ['1c', '5a'], true, function ($__require, export
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Subscriber_1 = $__require('1c');
-    var EmptyError_1 = $__require('5a');
+    var EmptyError_1 = $__require('5b');
     /**
      * Returns an Observable that emits only the last item emitted by the source Observable.
      * It optionally takes a predicate function as a parameter, in which case, rather than emitting
@@ -32245,7 +32449,7 @@ $__System.registerDynamic('5b', ['1c', '5a'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic('38', ['c', '5c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('38', ['c', '5d'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -32259,7 +32463,7 @@ $__System.registerDynamic('38', ['c', '5c'], true, function ($__require, exports
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Subject_1 = $__require('c');
-    var ObjectUnsubscribedError_1 = $__require('5c');
+    var ObjectUnsubscribedError_1 = $__require('5d');
     /**
      * @class BehaviorSubject<T>
      */
@@ -32305,7 +32509,7 @@ $__System.registerDynamic('38', ['c', '5c'], true, function ($__require, exports
 (function() {
 var define = $__System.amdDefine;
 (function(global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core'), require('rxjs/Subject'), require('rxjs/observable/from'), require('rxjs/observable/of'), require('rxjs/operator/every'), require('rxjs/operator/map'), require('rxjs/operator/mergeAll'), require('rxjs/operator/mergeMap'), require('rxjs/operator/reduce'), require('rxjs/Observable'), require('rxjs/operator/catch'), require('rxjs/operator/concatAll'), require('rxjs/operator/first'), require('rxjs/util/EmptyError'), require('rxjs/observable/fromPromise'), require('rxjs/operator/last'), require('rxjs/BehaviorSubject')) : typeof define === 'function' && define.amd ? define("2c", ["exports", "3c", "7", "c", "50", "52", "53", "23", "57", "54", "55", "d", "13", "58", "59", "5a", "e", "5b", "38"], factory) : (factory((global.ng = global.ng || {}, global.ng.router = global.ng.router || {}), global.ng.common, global.ng.core, global.Rx, global.Rx.Observable, global.Rx.Observable, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx, global.Rx.Observable, global.Rx.Observable.prototype, global.Rx));
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core'), require('rxjs/Subject'), require('rxjs/observable/from'), require('rxjs/observable/of'), require('rxjs/operator/every'), require('rxjs/operator/map'), require('rxjs/operator/mergeAll'), require('rxjs/operator/mergeMap'), require('rxjs/operator/reduce'), require('rxjs/Observable'), require('rxjs/operator/catch'), require('rxjs/operator/concatAll'), require('rxjs/operator/first'), require('rxjs/util/EmptyError'), require('rxjs/observable/fromPromise'), require('rxjs/operator/last'), require('rxjs/BehaviorSubject')) : typeof define === 'function' && define.amd ? define("2c", ["exports", "42", "7", "c", "51", "53", "54", "23", "58", "55", "56", "d", "13", "59", "5a", "5b", "e", "5c", "38"], factory) : (factory((global.ng = global.ng || {}, global.ng.router = global.ng.router || {}), global.ng.common, global.ng.core, global.Rx, global.Rx.Observable, global.Rx.Observable, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx, global.Rx.Observable, global.Rx.Observable.prototype, global.Rx));
 }(this, function(exports, _angular_common, _angular_core, rxjs_Subject, rxjs_observable_from, rxjs_observable_of, rxjs_operator_every, rxjs_operator_map, rxjs_operator_mergeAll, rxjs_operator_mergeMap, rxjs_operator_reduce, rxjs_Observable, rxjs_operator_catch, rxjs_operator_concatAll, rxjs_operator_first, rxjs_util_EmptyError, rxjs_observable_fromPromise, l, rxjs_BehaviorSubject) {
   'use strict';
   var __extends = (this && this.__extends) || function(d, b) {
@@ -35246,7 +35450,7 @@ var define = $__System.amdDefine;
 }));
 
 })();
-$__System.registerDynamic("31", ["7", "2c", "3b", "39"], true, function ($__require, exports, module) {
+$__System.registerDynamic("31", ["7", "2c", "3c", "39"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35269,7 +35473,7 @@ $__System.registerDynamic("31", ["7", "2c", "3b", "39"], true, function ($__requ
     };
     var core_1 = $__require("7");
     var router_1 = $__require("2c");
-    var apis_service_1 = $__require("3b");
+    var apis_service_1 = $__require("3c");
     var api_model_1 = $__require("39");
     var ApiDetailPageComponent = function () {
         /**
@@ -35336,7 +35540,7 @@ $__System.registerDynamic("31", ["7", "2c", "3b", "39"], true, function ($__requ
     exports.ApiDetailPageComponent = ApiDetailPageComponent;
     return module.exports;
 });
-$__System.registerDynamic("3b", ["7"], true, function ($__require, exports, module) {
+$__System.registerDynamic("3c", ["7"], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
@@ -35346,7 +35550,7 @@ $__System.registerDynamic("3b", ["7"], true, function ($__require, exports, modu
   exports.IApisService = new core_1.OpaqueToken("IApisService");
   return module.exports;
 });
-$__System.registerDynamic("5d", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("5e", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35363,13 +35567,13 @@ $__System.registerDynamic("5d", [], true, function ($__require, exports, module)
     exports.ApiRepositoryResource = ApiRepositoryResource;
     return module.exports;
 });
-$__System.registerDynamic("39", ["5d"], true, function ($__require, exports, module) {
+$__System.registerDynamic("39", ["5e"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
-    var api_repository_resource_1 = $__require("5d");
+    var api_repository_resource_1 = $__require("5e");
     var Api = function () {
         function Api() {
             this.id = "";
@@ -35386,7 +35590,7 @@ $__System.registerDynamic("39", ["5d"], true, function ($__require, exports, mod
     exports.Api = Api;
     return module.exports;
 });
-$__System.registerDynamic("5e", ["7", "3b", "39"], true, function ($__require, exports, module) {
+$__System.registerDynamic("5f", ["7", "3c", "39"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35408,7 +35612,7 @@ $__System.registerDynamic("5e", ["7", "3b", "39"], true, function ($__require, e
         };
     };
     var core_1 = $__require("7");
-    var apis_service_1 = $__require("3b");
+    var apis_service_1 = $__require("3c");
     var api_model_1 = $__require("39");
     var NewApiFormComponent = function () {
         /**
@@ -35468,7 +35672,7 @@ $__System.registerDynamic("5e", ["7", "3b", "39"], true, function ($__require, e
     exports.NewApiFormComponent = NewApiFormComponent;
     return module.exports;
 });
-$__System.registerDynamic("5f", ["7"], true, function ($__require, exports, module) {
+$__System.registerDynamic("60", ["7"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35517,7 +35721,7 @@ $__System.registerDynamic("5f", ["7"], true, function ($__require, exports, modu
     exports.ApisListComponent = ApisListComponent;
     return module.exports;
 });
-$__System.registerDynamic('5c', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('5d', [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35554,7 +35758,7 @@ $__System.registerDynamic('5c', [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic("60", ["15"], true, function ($__require, exports, module) {
+$__System.registerDynamic("61", ["15"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35604,7 +35808,7 @@ $__System.registerDynamic("60", ["15"], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('c', ['d', '1c', '15', '5c', '60', '61'], true, function ($__require, exports, module) {
+$__System.registerDynamic('c', ['d', '1c', '15', '5d', '61', '62'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35620,9 +35824,9 @@ $__System.registerDynamic('c', ['d', '1c', '15', '5c', '60', '61'], true, functi
     var Observable_1 = $__require('d');
     var Subscriber_1 = $__require('1c');
     var Subscription_1 = $__require('15');
-    var ObjectUnsubscribedError_1 = $__require('5c');
-    var SubjectSubscription_1 = $__require('60');
-    var rxSubscriber_1 = $__require('61');
+    var ObjectUnsubscribedError_1 = $__require('5d');
+    var SubjectSubscription_1 = $__require('61');
+    var rxSubscriber_1 = $__require('62');
     /**
      * @class SubjectSubscriber<T>
      */
@@ -35770,7 +35974,7 @@ $__System.registerDynamic('c', ['d', '1c', '15', '5c', '60', '61'], true, functi
 
     return module.exports;
 });
-$__System.registerDynamic("4b", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("4c", [], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
@@ -35783,7 +35987,7 @@ $__System.registerDynamic("4b", [], true, function ($__require, exports, module)
 
   return module.exports;
 });
-$__System.registerDynamic("62", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("63", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35797,7 +36001,7 @@ $__System.registerDynamic("62", [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic("63", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("64", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35849,7 +36053,7 @@ $__System.registerDynamic("20", [], true, function ($__require, exports, module)
 
   return module.exports;
 });
-$__System.registerDynamic("64", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("65", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35885,18 +36089,18 @@ $__System.registerDynamic("64", [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('15', ['4b', '62', '63', '1f', '20', '64'], true, function ($__require, exports, module) {
+$__System.registerDynamic('15', ['4c', '63', '64', '1f', '20', '65'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
-    var isArray_1 = $__require('4b');
-    var isObject_1 = $__require('62');
-    var isFunction_1 = $__require('63');
+    var isArray_1 = $__require('4c');
+    var isObject_1 = $__require('63');
+    var isFunction_1 = $__require('64');
     var tryCatch_1 = $__require('1f');
     var errorObject_1 = $__require('20');
-    var UnsubscriptionError_1 = $__require('64');
+    var UnsubscriptionError_1 = $__require('65');
     /**
      * Represents a disposable resource, such as the execution of an Observable. A
      * Subscription has one important method, `unsubscribe`, that takes no argument
@@ -36045,7 +36249,7 @@ $__System.registerDynamic('15', ['4b', '62', '63', '1f', '20', '64'], true, func
 
     return module.exports;
 });
-$__System.registerDynamic("65", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("66", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36063,7 +36267,7 @@ $__System.registerDynamic("65", [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('1c', ['63', '15', '65', '61'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1c', ['64', '15', '66', '62'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36076,10 +36280,10 @@ $__System.registerDynamic('1c', ['63', '15', '65', '61'], true, function ($__req
         }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    var isFunction_1 = $__require('63');
+    var isFunction_1 = $__require('64');
     var Subscription_1 = $__require('15');
-    var Observer_1 = $__require('65');
-    var rxSubscriber_1 = $__require('61');
+    var Observer_1 = $__require('66');
+    var rxSubscriber_1 = $__require('62');
     /**
      * Implements the {@link Observer} interface and extends the
      * {@link Subscription} class. While the {@link Observer} is the public API for
@@ -36314,7 +36518,7 @@ $__System.registerDynamic('1c', ['63', '15', '65', '61'], true, function ($__req
 
     return module.exports;
 });
-$__System.registerDynamic('61', ['17'], true, function ($__require, exports, module) {
+$__System.registerDynamic('62', ['17'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36327,14 +36531,14 @@ $__System.registerDynamic('61', ['17'], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('66', ['1c', '61'], true, function ($__require, exports, module) {
+$__System.registerDynamic('67', ['1c', '62'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
     var Subscriber_1 = $__require('1c');
-    var rxSubscriber_1 = $__require('61');
+    var rxSubscriber_1 = $__require('62');
     function toSubscriber(nextOrObserver, error, complete) {
         if (nextOrObserver) {
             if (nextOrObserver instanceof Subscriber_1.Subscriber) {
@@ -36377,7 +36581,7 @@ $__System.registerDynamic('17', [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('4f', ['17'], true, function ($__require, exports, module) {
+$__System.registerDynamic('50', ['17'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36405,15 +36609,15 @@ $__System.registerDynamic('4f', ['17'], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('d', ['17', '66', '4f'], true, function ($__require, exports, module) {
+$__System.registerDynamic('d', ['17', '67', '50'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
     var root_1 = $__require('17');
-    var toSubscriber_1 = $__require('66');
-    var observable_1 = $__require('4f');
+    var toSubscriber_1 = $__require('67');
+    var observable_1 = $__require('50');
     /**
      * A representation of any set of values over any amount of time. This the most basic building block
      * of RxJS.
@@ -43858,7 +44062,7 @@ var define = $__System.amdDefine;
 }));
 
 })();
-$__System.registerDynamic("67", ["7"], true, function ($__require, exports, module) {
+$__System.registerDynamic("68", ["7"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -43907,7 +44111,7 @@ $__System.registerDynamic("67", ["7"], true, function ($__require, exports, modu
     exports.ApisCardsComponent = ApisCardsComponent;
     return module.exports;
 });
-$__System.registerDynamic("68", ["7", "9", "a", "37", "29", "2b", "3a", "3f", "32", "33", "34", "40", "41", "42", "2d", "2e", "2f", "30", "31", "5e", "5f", "67"], true, function ($__require, exports, module) {
+$__System.registerDynamic("69", ["7", "9", "a", "37", "29", "2b", "3b", "3d", "32", "33", "34", "3f", "40", "41", "2d", "2e", "2f", "30", "31", "5f", "60", "68"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -43931,17 +44135,17 @@ $__System.registerDynamic("68", ["7", "9", "a", "37", "29", "2b", "3a", "3f", "3
     var studio_component_1 = $__require("29");
     var studio_routing_1 = $__require("2b");
     /* Service Providers */
-    var apis_service_provider_1 = $__require("3a");
-    var auth_service_provider_1 = $__require("3f");
+    var apis_service_provider_1 = $__require("3b");
+    var auth_service_provider_1 = $__require("3d");
     /* Resolves */
     var dashboard_resolve_1 = $__require("32");
     var api_detail_resolve_1 = $__require("33");
     /* Guards */
     var auth_guard_1 = $__require("34");
     /* Global Components */
-    var nav_header_component_1 = $__require("40");
-    var vertical_nav_component_1 = $__require("41");
-    var breadcrumbs_component_1 = $__require("42");
+    var nav_header_component_1 = $__require("3f");
+    var vertical_nav_component_1 = $__require("40");
+    var breadcrumbs_component_1 = $__require("41");
     /* Pages */
     var login_page_1 = $__require("2d");
     var dashboard_page_1 = $__require("2e");
@@ -43949,9 +44153,9 @@ $__System.registerDynamic("68", ["7", "9", "a", "37", "29", "2b", "3a", "3f", "3
     var newapi_page_1 = $__require("30");
     var api_detail_page_1 = $__require("31");
     /* Page Components */
-    var newapi_form_component_1 = $__require("5e");
-    var apis_list_component_1 = $__require("5f");
-    var apis_cards_component_1 = $__require("67");
+    var newapi_form_component_1 = $__require("5f");
+    var apis_list_component_1 = $__require("60");
+    var apis_cards_component_1 = $__require("68");
     var StudioModule = function () {
         function StudioModule() {}
         StudioModule = __decorate([core_1.NgModule({
@@ -43965,14 +44169,14 @@ $__System.registerDynamic("68", ["7", "9", "a", "37", "29", "2b", "3a", "3f", "3
     exports.StudioModule = StudioModule;
     return module.exports;
 });
-$__System.registerDynamic('5', ['8', '68'], true, function ($__require, exports, module) {
+$__System.registerDynamic('5', ['8', '69'], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
   var platform_browser_dynamic_1 = $__require('8');
-  var studio_module_1 = $__require('68');
+  var studio_module_1 = $__require('69');
   var platform = platform_browser_dynamic_1.platformBrowserDynamic();
   platform.bootstrapModule(studio_module_1.StudioModule);
   return module.exports;
