@@ -21852,6 +21852,24 @@ $__System.registerDynamic("36", ["38", "39", "35", "37", "3a"], true, function (
             return Promise.resolve(api);
         };
         /**
+         * Deletes an API.  This does not delete the API from the source repository.  It simply removes
+         * the API from the list of APIs "managed" by the studio.
+         * @param api
+         * @return {Promise<void>}
+         */
+        LocalApisService.prototype.deleteApi = function (api) {
+            var idx = this.allApis.indexOf(api);
+            if (idx != -1) {
+                this.allApis.splice(idx, 1);
+                this._apis.next(this.allApis);
+                var ra = this.allApis.slice(0, 4);
+                this._recentApis.next(ra);
+                // Save the result in local storage
+                this.storeApisInLocalStorage(this.allApis);
+            }
+            return Promise.resolve(null);
+        };
+        /**
          * Gets a single API by its id.  The API id is assigned when the API is created.
          * @param apiId
          * @return Promise<Api>
@@ -22363,33 +22381,56 @@ $__System.registerDynamic("41", ["7"], true, function ($__require, exports, modu
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var core_1 = $__require("7");
-    var Breadcrumb = function () {
-        function Breadcrumb(label, icon, route) {
-            this.label = label;
-            this.icon = icon;
-            this.route = route;
-        }
-        return Breadcrumb;
-    }();
-    exports.Breadcrumb = Breadcrumb;
     var BreadcrumbsComponent = function () {
         function BreadcrumbsComponent() {}
-        __decorate([core_1.Input(), __metadata('design:type', Array)], BreadcrumbsComponent.prototype, "breadcrumbs", void 0);
         BreadcrumbsComponent = __decorate([core_1.Component({
             moduleId: module.id,
             selector: 'breadcrumbs',
-            template: "\n      <div class=\"container-fluid api-breadcrumbs\">\n          <div class=\"row-fluid\">\n              <ol class=\"breadcrumb\">\n                  <li *ngFor=\"let bc of breadcrumbs\" [class.active]=\"bc.route == null\">\n                      <span *ngIf=\"bc.route == null\"><span class=\"fa fa-fw fa-{{ bc.icon }}\"></span><span>{{ bc.label }}</span></span>\n                      <a *ngIf=\"bc.route != null\" [routerLink]=\"bc.route\"><span class=\"fa fa-fw fa-{{ bc.icon }}\"></span><span>{{ bc.label }}</span></a>\n                  </li>\n              </ol>\n          </div>\n      </div>\n    ",
-            styles: ["\n      .api-breadcrumbs {\n        background: white;\n        border-bottom: 1px solid #ccc;\n      }\n      .api-breadcrumbs .api-home-nav {\n        font-size: 22px;\n        padding: 0 10px 0 10px;\n        margin-right: 15px;\n        border-left: 1px solid #ddd;\n        border-right: 1px solid #ddd;\n      }\n      .api-breadcrumbs .api-home-nav:hover {\n        background-color: #39a5dc;\n      }\n      .api-breadcrumbs .api-home-nav:hover a {\n        color: white;\n      }\n      .api-breadcrumbs .breadcrumb {\n        margin-bottom: 0;\n        float: left;\n      }\n    "]
+            template: "\n      <div class=\"container-fluid api-breadcrumbs\">\n          <div class=\"row-fluid\">\n              <ol class=\"breadcrumb\">\n                  <ng-content></ng-content>\n              </ol>\n          </div>\n      </div>\n    ",
+            styles: ["\n      .api-breadcrumbs {\n        background: white;\n        border-bottom: 1px solid #ccc;\n      }\n      .api-breadcrumbs .breadcrumb {\n        margin-bottom: 0;\n        float: left;\n      }\n    "]
         }), __metadata('design:paramtypes', [])], BreadcrumbsComponent);
         return BreadcrumbsComponent;
     }();
     exports.BreadcrumbsComponent = BreadcrumbsComponent;
     return module.exports;
 });
+$__System.registerDynamic("42", ["7"], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var __decorate = this && this.__decorate || function (decorators, target, key, desc) {
+        var c = arguments.length,
+            r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc,
+            d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = this && this.__metadata || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var core_1 = $__require("7");
+    var BreadcrumbComponent = function () {
+        function BreadcrumbComponent() {}
+        __decorate([core_1.Input(), __metadata('design:type', String)], BreadcrumbComponent.prototype, "label", void 0);
+        __decorate([core_1.Input(), __metadata('design:type', String)], BreadcrumbComponent.prototype, "icon", void 0);
+        __decorate([core_1.Input(), __metadata('design:type', Array)], BreadcrumbComponent.prototype, "route", void 0);
+        BreadcrumbComponent = __decorate([core_1.Component({
+            moduleId: module.id,
+            selector: '[breadcrumb]',
+            template: "\n      <span *ngIf=\"route == null\"><span class=\"fa fa-fw fa-{{ icon }}\"></span><span>{{ label }}</span></span>\n      <a *ngIf=\"route != null\" [routerLink]=\"route\"><span class=\"fa fa-fw fa-{{ icon }}\"></span><span>{{ label }}</span></a>\n    ",
+            styles: ["\n\n    "]
+        }), __metadata('design:paramtypes', [])], BreadcrumbComponent);
+        return BreadcrumbComponent;
+    }();
+    exports.BreadcrumbComponent = BreadcrumbComponent;
+    return module.exports;
+});
 (function() {
 var define = $__System.amdDefine;
 (function(global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core')) : typeof define === 'function' && define.amd ? define("9", ["exports", "42", "7"], factory) : (factory((global.ng = global.ng || {}, global.ng.platformBrowser = global.ng.platformBrowser || {}), global.ng.common, global.ng.core));
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core')) : typeof define === 'function' && define.amd ? define("9", ["exports", "43", "7"], factory) : (factory((global.ng = global.ng || {}, global.ng.platformBrowser = global.ng.platformBrowser || {}), global.ng.common, global.ng.core));
 }(this, function(exports, _angular_common, _angular_core) {
   'use strict';
   var DebugDomRootRenderer = _angular_core.__core_private__.DebugDomRootRenderer;
@@ -26854,7 +26895,7 @@ var define = $__System.amdDefine;
 }));
 
 })();
-$__System.registerDynamic("43", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("44", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -26903,7 +26944,7 @@ $__System.registerDynamic("3a", [], true, function ($__require, exports, module)
     exports.AbstractGithubService = AbstractGithubService;
     return module.exports;
 });
-$__System.registerDynamic("3e", ["37", "43", "38", "3a"], true, function ($__require, exports, module) {
+$__System.registerDynamic("3e", ["37", "44", "38", "3a"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -26917,7 +26958,7 @@ $__System.registerDynamic("3e", ["37", "43", "38", "3a"], true, function ($__req
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var http_1 = $__require("37");
-    var user_model_1 = $__require("43");
+    var user_model_1 = $__require("44");
     var BehaviorSubject_1 = $__require("38");
     var github_1 = $__require("3a");
     var USER_LOCAL_STORAGE_KEY = "apiman.studio.services.github-auth.user";
@@ -27369,7 +27410,50 @@ $__System.registerDynamic("2e", ["7", "2c", "2a"], true, function ($__require, e
     exports.DashboardPageComponent = DashboardPageComponent;
     return module.exports;
 });
-$__System.registerDynamic("2f", ["7", "3c"], true, function ($__require, exports, module) {
+$__System.registerDynamic("45", [], true, function ($__require, exports, module) {
+    "use strict";
+
+    var define,
+        global = this || self,
+        GLOBAL = global;
+    var ArrayUtils = function () {
+        function ArrayUtils() {}
+        /**
+         * Returns the intersection of two arrays.
+         * @param a1
+         * @param a2
+         */
+        ArrayUtils.intersect = function (a1, a2) {
+            var rval = [];
+            for (var _i = 0, a1_1 = a1; _i < a1_1.length; _i++) {
+                var item = a1_1[_i];
+                if (ArrayUtils.contains(a2, item)) {
+                    rval.push(item);
+                }
+            }
+            return rval;
+        };
+        /**
+         * Returns true if the given item is contained in the given array.
+         * @param a
+         * @param item
+         * @return {boolean}
+         */
+        ArrayUtils.contains = function (a, item) {
+            for (var _i = 0, a_1 = a; _i < a_1.length; _i++) {
+                var aitem = a_1[_i];
+                if (aitem === item) {
+                    return true;
+                }
+            }
+            return false;
+        };
+        return ArrayUtils;
+    }();
+    exports.ArrayUtils = ArrayUtils;
+    return module.exports;
+});
+$__System.registerDynamic("2f", ["7", "3c", "45"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -27392,6 +27476,7 @@ $__System.registerDynamic("2f", ["7", "3c"], true, function ($__require, exports
     };
     var core_1 = $__require("7");
     var apis_service_1 = $__require("3c");
+    var common_1 = $__require("45");
     var API_FILTERS_KEY = "apiman.studio.pages.apis.filters";
     var Filters = function () {
         function Filters(params) {
@@ -27457,6 +27542,7 @@ $__System.registerDynamic("2f", ["7", "3c"], true, function ($__require, exports
                 }
                 return rval;
             });
+            this.selectedApis = common_1.ArrayUtils.intersect(this.selectedApis, this.filteredApis);
             return this.filteredApis;
         };
         ApisPageComponent.prototype.toggleSortDirection = function () {
@@ -27471,13 +27557,24 @@ $__System.registerDynamic("2f", ["7", "3c"], true, function ($__require, exports
             this.filters.nameFilter = "";
             this.filterApis();
         };
-        ApisPageComponent.prototype.onSelected = function (sapis) {
-            console.info("Caught the onApisSelected event!  Data: %o", sapis);
-            this.selectedApis = sapis;
+        ApisPageComponent.prototype.onSelected = function (api) {
+            console.info("[ApisPageComponent] Caught the onApiSelected event!  Data: %o", api);
+            this.selectedApis.push(api);
+        };
+        ApisPageComponent.prototype.onDeselected = function (api) {
+            console.info("[ApisPageComponent] Caught the onApiDeselected event!  Data: %o", api);
+            this.selectedApis.splice(this.selectedApis.indexOf(api), 1);
         };
         ApisPageComponent.prototype.onDelete = function () {
-            alert("Not yet implemented!");
-            // TODO implement this - NOTE: get the intersection of "filterApis" and "selectedApis" to determine the list of items to operate on
+            // TODO deleting the APIs is done asynchronously - we need some sort of visual status (spinner) to watch progress, and then close the dialog when it's done
+            // Note: we can only delete selected items that we can see in the UI.
+            var itemsToDelete = common_1.ArrayUtils.intersect(this.selectedApis, this.filteredApis);
+            console.log("[ApisPageComponent] Deleting %s selected APIs.", itemsToDelete.length);
+            for (var _i = 0, itemsToDelete_1 = itemsToDelete; _i < itemsToDelete_1.length; _i++) {
+                var api = itemsToDelete_1[_i];
+                this.apis.deleteApi(api);
+            }
+            this.selectedApis = [];
         };
         ApisPageComponent.prototype.onListLayout = function () {
             this.filters.layout = 'list';
@@ -27491,7 +27588,7 @@ $__System.registerDynamic("2f", ["7", "3c"], true, function ($__require, exports
         ApisPageComponent = __decorate([core_1.Component({
             moduleId: module.id,
             selector: 'apis-page',
-            template: "\n      <breadcrumbs [breadcrumbs]=\"[\n          {\n              label: 'Dashboard',\n              icon: 'dashboard',\n              route: [ '' ]\n          },\n          {\n              label: 'APIs',\n              icon: 'search'\n          }\n      ]\"></breadcrumbs>\n      <div class=\"container-fluid api-list-apis\">\n          <div class=\"row toolbar-pf\">\n              <div class=\"col-sm-12\">\n                  <form class=\"toolbar-pf-actions\" (submit)=\"filterApis()\" #filterForm=\"ngForm\">\n                      <div class=\"form-group toolbar-pf-filter\">\n                          <label class=\"sr-only\" for=\"filter\">Name</label>\n                          <div class=\"input-group\" style=\"width: 100%\">\n                              <input name=\"name-filter\" [(ngModel)]=\"filters.nameFilter\" type=\"text\" class=\"form-control name-filter\" id=\"filter\" placeholder=\"Filter by name...\">\n                          </div>\n                      </div>\n                      <div class=\"form-group\">\n                          <button class=\"btn btn-link\" type=\"button\" (click)=\"toggleSortDirection()\">\n                              <span *ngIf=\"filters.sortDirection === 'ASC'\" class=\"fa fa-sort-alpha-asc\"></span>\n                              <span *ngIf=\"filters.sortDirection === 'DESC'\" class=\"fa fa-sort-alpha-desc\"></span>\n                          </button>\n                      </div>\n                      <div class=\"form-group\">\n                          <button class=\"btn btn-danger\" type=\"button\" [disabled]=\"selectedApis.length == 0\" (click)=\"onDelete()\">Delete</button>\n                      </div>\n                      <div class=\"form-group\">\n                          <a class=\"btn btn-primary\" [routerLink]=\"['newapi']\">New API</a>\n                      </div>\n                      <div class=\"form-group toolbar-pf-view-selector\">\n                          <ul class=\"list-inline\">\n                              <li *ngIf=\"filters.layout === 'list'\"><a (click)=\"onCardLayout()\"><i class=\"fa fa-th-list\"></i></a></li>\n                              <li *ngIf=\"filters.layout === 'card'\"><a (click)=\"onListLayout()\"><i class=\"fa fa-th\"></i></a></li>\n                          </ul>\n                      </div>\n                  </form>\n                  <div class=\"row toolbar-pf-results\">\n                      <div class=\"col-sm-12\">\n                          <h5>{{ filteredApis.length }} APIs found <a *ngIf=\"allApis.length != filteredApis.length\"\n                                                                      class=\"clear-filters\" (click)=\"clearFilters()\">(out of {{ allApis.length }} total)</a></h5>\n                      </div>\n                  </div>\n              </div>\n          </div>\n          <div class=\"row api-list-items\">\n              <div class=\"col-md-12\">\n                  <apis-list *ngIf=\"filters.layout === 'list'\" [apis]=\"filteredApis\" (onApisSelected)=\"onSelected($event)\"></apis-list>\n                  <apis-cards *ngIf=\"filters.layout === 'card'\" [apis]=\"filteredApis\" (onApisSelected)=\"onSelected($event)\"></apis-cards>\n              </div>\n          </div>\n      </div>\n    ",
+            template: "\n      <breadcrumbs>\n          <li breadcrumb label=\"Dashboard\" icon=\"dashboard\" [route]=\"[ '/' ]\"></li>\n          <li breadcrumb label=\"APIs\" icon=\"search\" class=\"active\"></li>\n      </breadcrumbs>\n      <div class=\"container-fluid api-list-apis\">\n          <div class=\"row toolbar-pf\">\n              <div class=\"col-sm-12\">\n                  <form class=\"toolbar-pf-actions\" (submit)=\"filterApis()\" #filterForm=\"ngForm\">\n                      <div class=\"form-group toolbar-pf-filter\">\n                          <label class=\"sr-only\" for=\"filter\">Name</label>\n                          <div class=\"input-group\" style=\"width: 100%\">\n                              <input name=\"name-filter\" [(ngModel)]=\"filters.nameFilter\" type=\"text\" class=\"form-control name-filter\" id=\"filter\" placeholder=\"Filter by name...\">\n                          </div>\n                      </div>\n                      <div class=\"form-group\">\n                          <button class=\"btn btn-link\" type=\"button\" (click)=\"toggleSortDirection()\">\n                              <span *ngIf=\"filters.sortDirection === 'ASC'\" class=\"fa fa-sort-alpha-asc\"></span>\n                              <span *ngIf=\"filters.sortDirection === 'DESC'\" class=\"fa fa-sort-alpha-desc\"></span>\n                          </button>\n                      </div>\n                      <div class=\"form-group\">\n                          <button class=\"btn btn-danger\" type=\"button\" [disabled]=\"selectedApis.length == 0\" data-toggle=\"modal\" data-target=\"#confirmDeleteModal\">Delete</button>\n                      </div>\n                      <div class=\"form-group\">\n                          <a class=\"btn btn-primary\" [routerLink]=\"['newapi']\">New API</a>\n                      </div>\n                      <div class=\"form-group toolbar-pf-view-selector\">\n                          <ul class=\"list-inline\">\n                              <li *ngIf=\"filters.layout === 'list'\"><a (click)=\"onCardLayout()\"><i class=\"fa fa-th-list\"></i></a></li>\n                              <li *ngIf=\"filters.layout === 'card'\"><a (click)=\"onListLayout()\"><i class=\"fa fa-th\"></i></a></li>\n                          </ul>\n                      </div>\n                  </form>\n                  <div class=\"row toolbar-pf-results\">\n                      <div class=\"col-sm-12\">\n                          <h5>{{ filteredApis.length }} APIs found <a *ngIf=\"allApis.length != filteredApis.length\"\n                                                                      class=\"clear-filters\" (click)=\"clearFilters()\">(out of {{ allApis.length }} total)</a></h5>\n                      </div>\n                  </div>\n              </div>\n          </div>\n          <div class=\"row api-list-items\">\n              <div class=\"col-md-12\">\n                  <apis-list *ngIf=\"filters.layout === 'list'\" [apis]=\"filteredApis\" [selectedApis]=\"selectedApis\"\n                             (onApiSelected)=\"onSelected($event)\" (onApiDeselected)=\"onDeselected($event)\"></apis-list>\n                  <apis-cards *ngIf=\"filters.layout === 'card'\" [apis]=\"filteredApis\" [selectedApis]=\"selectedApis\"\n                              (onApiSelected)=\"onSelected($event)\" (onApiDeselected)=\"onDeselected($event)\"></apis-cards>\n              </div>\n          </div>\n      </div>\n      <div class=\"modal fade\" id=\"confirmDeleteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"confirmDeleteModalLabel\" aria-hidden=\"true\">\n          <div class=\"modal-dialog\">\n              <div class=\"modal-content\">\n                  <div class=\"modal-header\">\n                      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\n                          <span class=\"pficon pficon-close\"></span>\n                      </button>\n                      <h4 class=\"modal-title\" id=\"confirmDeleteModalLabel\">Confirm Delete</h4>\n                  </div>\n                  <div class=\"modal-body\">\n                      <p *ngIf=\"selectedApis.length === 1\">Do you really want to delete the selected API?</p>\n                      <p *ngIf=\"selectedApis.length > 1\">Do you really want to delete the <strong>{{ selectedApis.length }}</strong> selected APIs?</p>\n\n                      <div class=\"alert alert-info\">\n                          <span class=\"pficon pficon-info\"></span>\n                          <strong>NOTE:</strong>\n                          <span>This will not delete the API definition file(s) from source control - only from APIMan Studio.</span>\n                      </div>\n\n                  </div>\n                  <div class=\"modal-footer\">\n                      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Cancel</button>\n                      <button type=\"button\" class=\"btn btn-danger\" data-dismiss=\"modal\" (click)=\"onDelete()\">Delete</button>\n                  </div>\n              </div>\n          </div>\n      </div>\n    ",
             styles: ["\n      .toolbar-pf {\n        margin-top: 5px;\n      }\n      .toolbar-pf form {\n        margin-bottom: 0;\n      }\n      .toolbar-pf-results {\n        margin-top: 0;\n      }\n      .api-list-items {\n        margin-top: 10px;\n      }\n      .api-list-apis .toolbar-pf {\n        background-color: transparent;\n      }\n      .api-list-apis .toolbar-pf .toolbar-pf-results {\n        background-color: white;\n      }\n      a.clear-filters {\n        cursor: pointer;\n      }\n      .toolbar-pf-view-selector {\n        float: right;\n      }\n      .toolbar-pf-view-selector li a {\n        cursor: pointer;\n        color: #333;\n      }\n      .toolbar-pf-view-selector li a:hover {\n        color: #0088ce;\n      }\n    "]
         }), __param(0, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [Object])], ApisPageComponent);
         return ApisPageComponent;
@@ -27553,7 +27650,7 @@ $__System.registerDynamic("30", ["7", "2c", "3c"], true, function ($__require, e
         NewApiPageComponent = __decorate([core_1.Component({
             moduleId: module.id,
             selector: 'newapi-page',
-            template: "\n      <breadcrumbs [breadcrumbs]=\"[\n          {\n              label: 'Dashboard',\n              icon: 'dashboard',\n              route: [ '' ]\n          },\n          {\n              label: 'APIs',\n              icon: 'search',\n              route: [ '/apis' ]\n          },\n          {\n              label: 'New API',\n              icon: 'plus'\n          }\n      ]\"></breadcrumbs>\n      <div class=\"container-fluid\">\n          <div class=\"newapi-form row\">\n              <div class=\"form-instructions col-md-3\">\n                  <ol>\n                      <li>Choose a name (<b>Required</b>)</li>\n                      <li>Set the description</li>\n                      <li>Configure repository details (<b>Required</b>)</li>\n                  </ol>\n              </div>\n              <div class=\"col-md-7\">\n                  <div class=\"alert alert-info\">\n                      <span class=\"pficon pficon-info\"></span>\n                      <strong>NOTE:</strong>\n                      <span>Try to drag and drop the API definition resource URL from your source control site (e.g. github) into the box below!</span>\n                  </div>\n                  <newapi-form (onCreateApi)=\"onCreateApi($event)\" #newApiForm></newapi-form>\n              </div>\n          </div>\n      </div>\n    ",
+            template: "\n      <breadcrumbs>\n          <li breadcrumb label=\"Dashboard\" icon=\"dashboard\" [route]=\"[ '/' ]\"></li>\n          <li breadcrumb label=\"APIs\" icon=\"search\" [route]=\"[ '/apis' ]\"></li>\n          <li breadcrumb label=\"New API\" icon=\"plus\" class=\"active\"></li>\n      </breadcrumbs>\n      <div class=\"container-fluid\">\n          <div class=\"newapi-form row\">\n              <div class=\"form-instructions col-md-3\">\n                  <ol>\n                      <li>Choose a name (<b>Required</b>)</li>\n                      <li>Set the description</li>\n                      <li>Configure repository details (<b>Required</b>)</li>\n                  </ol>\n              </div>\n              <div class=\"col-md-7\">\n                  <div class=\"alert alert-info\">\n                      <span class=\"pficon pficon-info\"></span>\n                      <strong>NOTE:</strong>\n                      <span>Try to drag and drop the API definition resource URL from your source control site (e.g. github) into the box below!</span>\n                  </div>\n                  <newapi-form (onCreateApi)=\"onCreateApi($event)\" #newApiForm></newapi-form>\n              </div>\n          </div>\n      </div>\n    ",
             styles: ["\n      .newapi-form {\n        padding: 15px;\n      }\n      .newapi-form .form-instructions {\n        font-size: 15px;\n        padding-top: 10px;\n      }\n      .newapi-form .form-instructions ol {\n        padding-left: 20px;\n      }\n    "]
         }), __param(1, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [router_1.Router, Object])], NewApiPageComponent);
         return NewApiPageComponent;
@@ -27564,7 +27661,7 @@ $__System.registerDynamic("30", ["7", "2c", "3c"], true, function ($__require, e
 (function() {
 var define = $__System.amdDefine;
 (function(global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core')) : typeof define === 'function' && define.amd ? define("42", ["exports", "7"], factory) : (factory((global.ng = global.ng || {}, global.ng.common = global.ng.common || {}), global.ng.core));
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core')) : typeof define === 'function' && define.amd ? define("43", ["exports", "7"], factory) : (factory((global.ng = global.ng || {}, global.ng.common = global.ng.common || {}), global.ng.core));
 }(this, function(exports, _angular_core) {
   'use strict';
   var PlatformLocation = (function() {
@@ -30122,7 +30219,7 @@ var define = $__System.amdDefine;
 }));
 
 })();
-$__System.registerDynamic('44', ['17', 'd', '45'], true, function ($__require, exports, module) {
+$__System.registerDynamic('46', ['17', 'd', '47'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30137,7 +30234,7 @@ $__System.registerDynamic('44', ['17', 'd', '45'], true, function ($__require, e
     };
     var root_1 = $__require('17');
     var Observable_1 = $__require('d');
-    var iterator_1 = $__require('45');
+    var iterator_1 = $__require('47');
     /**
      * We need this JSDoc comment for affecting ESDoc.
      * @extends {Ignored}
@@ -30304,7 +30401,7 @@ $__System.registerDynamic('44', ['17', 'd', '45'], true, function ($__require, e
 
     return module.exports;
 });
-$__System.registerDynamic('46', ['d', '47', '48'], true, function ($__require, exports, module) {
+$__System.registerDynamic('48', ['d', '49', '4a'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30318,8 +30415,8 @@ $__System.registerDynamic('46', ['d', '47', '48'], true, function ($__require, e
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Observable_1 = $__require('d');
-    var ScalarObservable_1 = $__require('47');
-    var EmptyObservable_1 = $__require('48');
+    var ScalarObservable_1 = $__require('49');
+    var EmptyObservable_1 = $__require('4a');
     /**
      * We need this JSDoc comment for affecting ESDoc.
      * @extends {Ignored}
@@ -30386,7 +30483,7 @@ $__System.registerDynamic('46', ['d', '47', '48'], true, function ($__require, e
 
     return module.exports;
 });
-$__System.registerDynamic('49', ['d'], true, function ($__require, exports, module) {
+$__System.registerDynamic('4b', ['d'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30520,7 +30617,7 @@ $__System.registerDynamic('49', ['d'], true, function ($__require, exports, modu
 
     return module.exports;
 });
-$__System.registerDynamic('4a', ['1c', '49'], true, function ($__require, exports, module) {
+$__System.registerDynamic('4c', ['1c', '4b'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30534,7 +30631,7 @@ $__System.registerDynamic('4a', ['1c', '49'], true, function ($__require, export
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Subscriber_1 = $__require('1c');
-    var Notification_1 = $__require('49');
+    var Notification_1 = $__require('4b');
     /**
      * @see {@link Notification}
      *
@@ -30612,7 +30709,7 @@ $__System.registerDynamic('4a', ['1c', '49'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic('4b', ['4c', '4d', '4e', '44', '4f', '46', '45', 'd', '4a', '50'], true, function ($__require, exports, module) {
+$__System.registerDynamic('4d', ['4e', '4f', '50', '46', '51', '48', '47', 'd', '4c', '52'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30625,16 +30722,16 @@ $__System.registerDynamic('4b', ['4c', '4d', '4e', '44', '4f', '46', '45', 'd', 
         }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    var isArray_1 = $__require('4c');
-    var isPromise_1 = $__require('4d');
-    var PromiseObservable_1 = $__require('4e');
-    var IteratorObservable_1 = $__require('44');
-    var ArrayObservable_1 = $__require('4f');
-    var ArrayLikeObservable_1 = $__require('46');
-    var iterator_1 = $__require('45');
+    var isArray_1 = $__require('4e');
+    var isPromise_1 = $__require('4f');
+    var PromiseObservable_1 = $__require('50');
+    var IteratorObservable_1 = $__require('46');
+    var ArrayObservable_1 = $__require('51');
+    var ArrayLikeObservable_1 = $__require('48');
+    var iterator_1 = $__require('47');
     var Observable_1 = $__require('d');
-    var observeOn_1 = $__require('4a');
-    var observable_1 = $__require('50');
+    var observeOn_1 = $__require('4c');
+    var observable_1 = $__require('52');
     var isArrayLike = function (x) {
         return x && typeof x.length === 'number';
     };
@@ -30735,19 +30832,19 @@ $__System.registerDynamic('4b', ['4c', '4d', '4e', '44', '4f', '46', '45', 'd', 
 
     return module.exports;
 });
-$__System.registerDynamic("51", ["4b"], true, function ($__require, exports, module) {
+$__System.registerDynamic("53", ["4d"], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
-  var FromObservable_1 = $__require("4b");
+  var FromObservable_1 = $__require("4d");
   exports.from = FromObservable_1.FromObservable.create;
   
 
   return module.exports;
 });
-$__System.registerDynamic("47", ["d"], true, function ($__require, exports, module) {
+$__System.registerDynamic("49", ["d"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30816,7 +30913,7 @@ $__System.registerDynamic("47", ["d"], true, function ($__require, exports, modu
 
     return module.exports;
 });
-$__System.registerDynamic("48", ["d"], true, function ($__require, exports, module) {
+$__System.registerDynamic("4a", ["d"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30900,7 +30997,7 @@ $__System.registerDynamic("48", ["d"], true, function ($__require, exports, modu
 
     return module.exports;
 });
-$__System.registerDynamic("52", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("54", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30914,7 +31011,7 @@ $__System.registerDynamic("52", [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('4f', ['d', '47', '48', '52'], true, function ($__require, exports, module) {
+$__System.registerDynamic('51', ['d', '49', '4a', '54'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -30928,9 +31025,9 @@ $__System.registerDynamic('4f', ['d', '47', '48', '52'], true, function ($__requ
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Observable_1 = $__require('d');
-    var ScalarObservable_1 = $__require('47');
-    var EmptyObservable_1 = $__require('48');
-    var isScheduler_1 = $__require('52');
+    var ScalarObservable_1 = $__require('49');
+    var EmptyObservable_1 = $__require('4a');
+    var isScheduler_1 = $__require('54');
     /**
      * We need this JSDoc comment for affecting ESDoc.
      * @extends {Ignored}
@@ -31045,19 +31142,19 @@ $__System.registerDynamic('4f', ['d', '47', '48', '52'], true, function ($__requ
 
     return module.exports;
 });
-$__System.registerDynamic("53", ["4f"], true, function ($__require, exports, module) {
+$__System.registerDynamic("55", ["51"], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
-  var ArrayObservable_1 = $__require("4f");
+  var ArrayObservable_1 = $__require("51");
   exports.of = ArrayObservable_1.ArrayObservable.of;
   
 
   return module.exports;
 });
-$__System.registerDynamic("54", ["1c"], true, function ($__require, exports, module) {
+$__System.registerDynamic("56", ["1c"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31230,7 +31327,7 @@ $__System.registerDynamic('23', ['1c'], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('55', ['26', '25'], true, function ($__require, exports, module) {
+$__System.registerDynamic('57', ['26', '25'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31402,7 +31499,7 @@ $__System.registerDynamic('55', ['26', '25'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic('56', ['1c'], true, function ($__require, exports, module) {
+$__System.registerDynamic('58', ['1c'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31636,7 +31733,7 @@ $__System.registerDynamic("25", ["1c"], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('4d', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('4f', [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31650,7 +31747,7 @@ $__System.registerDynamic('4d', [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('45', ['17'], true, function ($__require, exports, module) {
+$__System.registerDynamic('47', ['17'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31686,7 +31783,7 @@ $__System.registerDynamic('45', ['17'], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic("57", ["1c"], true, function ($__require, exports, module) {
+$__System.registerDynamic("59", ["1c"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31732,19 +31829,19 @@ $__System.registerDynamic("57", ["1c"], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('26', ['17', '4c', '4d', 'd', '45', '57', '50'], true, function ($__require, exports, module) {
+$__System.registerDynamic('26', ['17', '4e', '4f', 'd', '47', '59', '52'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
     var root_1 = $__require('17');
-    var isArray_1 = $__require('4c');
-    var isPromise_1 = $__require('4d');
+    var isArray_1 = $__require('4e');
+    var isPromise_1 = $__require('4f');
     var Observable_1 = $__require('d');
-    var iterator_1 = $__require('45');
-    var InnerSubscriber_1 = $__require('57');
-    var observable_1 = $__require('50');
+    var iterator_1 = $__require('47');
+    var InnerSubscriber_1 = $__require('59');
+    var observable_1 = $__require('52');
     function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
         var destination = new InnerSubscriber_1.InnerSubscriber(outerSubscriber, outerValue, outerIndex);
         if (destination.closed) {
@@ -31811,7 +31908,7 @@ $__System.registerDynamic('26', ['17', '4c', '4d', 'd', '45', '57', '50'], true,
 
     return module.exports;
 });
-$__System.registerDynamic('58', ['25', '26'], true, function ($__require, exports, module) {
+$__System.registerDynamic('5a', ['25', '26'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -31932,13 +32029,13 @@ $__System.registerDynamic('58', ['25', '26'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic("59", ["58"], true, function ($__require, exports, module) {
+$__System.registerDynamic("5b", ["5a"], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
-  var mergeAll_1 = $__require("58");
+  var mergeAll_1 = $__require("5a");
   /**
    * Converts a higher-order Observable into a first-order Observable by
    * concatenating the inner Observables in order.
@@ -31989,7 +32086,7 @@ $__System.registerDynamic("59", ["58"], true, function ($__require, exports, mod
 
   return module.exports;
 });
-$__System.registerDynamic('5a', ['1c', '5b'], true, function ($__require, exports, module) {
+$__System.registerDynamic('5c', ['1c', '5d'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -32003,7 +32100,7 @@ $__System.registerDynamic('5a', ['1c', '5b'], true, function ($__require, export
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Subscriber_1 = $__require('1c');
-    var EmptyError_1 = $__require('5b');
+    var EmptyError_1 = $__require('5d');
     /**
      * Emits only the first value (or the first value that meets some condition)
      * emitted by the source Observable.
@@ -32143,7 +32240,7 @@ $__System.registerDynamic('5a', ['1c', '5b'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic('4e', ['17', 'd'], true, function ($__require, exports, module) {
+$__System.registerDynamic('50', ['17', 'd'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -32275,19 +32372,19 @@ $__System.registerDynamic('4e', ['17', 'd'], true, function ($__require, exports
 
     return module.exports;
 });
-$__System.registerDynamic("e", ["4e"], true, function ($__require, exports, module) {
+$__System.registerDynamic("e", ["50"], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
-  var PromiseObservable_1 = $__require("4e");
+  var PromiseObservable_1 = $__require("50");
   exports.fromPromise = PromiseObservable_1.PromiseObservable.create;
   
 
   return module.exports;
 });
-$__System.registerDynamic('5b', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('5d', [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -32325,7 +32422,7 @@ $__System.registerDynamic('5b', [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('5c', ['1c', '5b'], true, function ($__require, exports, module) {
+$__System.registerDynamic('5e', ['1c', '5d'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -32339,7 +32436,7 @@ $__System.registerDynamic('5c', ['1c', '5b'], true, function ($__require, export
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Subscriber_1 = $__require('1c');
-    var EmptyError_1 = $__require('5b');
+    var EmptyError_1 = $__require('5d');
     /**
      * Returns an Observable that emits only the last item emitted by the source Observable.
      * It optionally takes a predicate function as a parameter, in which case, rather than emitting
@@ -32449,7 +32546,7 @@ $__System.registerDynamic('5c', ['1c', '5b'], true, function ($__require, export
 
     return module.exports;
 });
-$__System.registerDynamic('38', ['c', '5d'], true, function ($__require, exports, module) {
+$__System.registerDynamic('38', ['c', '5f'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -32463,7 +32560,7 @@ $__System.registerDynamic('38', ['c', '5d'], true, function ($__require, exports
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
     var Subject_1 = $__require('c');
-    var ObjectUnsubscribedError_1 = $__require('5d');
+    var ObjectUnsubscribedError_1 = $__require('5f');
     /**
      * @class BehaviorSubject<T>
      */
@@ -32509,7 +32606,7 @@ $__System.registerDynamic('38', ['c', '5d'], true, function ($__require, exports
 (function() {
 var define = $__System.amdDefine;
 (function(global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core'), require('rxjs/Subject'), require('rxjs/observable/from'), require('rxjs/observable/of'), require('rxjs/operator/every'), require('rxjs/operator/map'), require('rxjs/operator/mergeAll'), require('rxjs/operator/mergeMap'), require('rxjs/operator/reduce'), require('rxjs/Observable'), require('rxjs/operator/catch'), require('rxjs/operator/concatAll'), require('rxjs/operator/first'), require('rxjs/util/EmptyError'), require('rxjs/observable/fromPromise'), require('rxjs/operator/last'), require('rxjs/BehaviorSubject')) : typeof define === 'function' && define.amd ? define("2c", ["exports", "42", "7", "c", "51", "53", "54", "23", "58", "55", "56", "d", "13", "59", "5a", "5b", "e", "5c", "38"], factory) : (factory((global.ng = global.ng || {}, global.ng.router = global.ng.router || {}), global.ng.common, global.ng.core, global.Rx, global.Rx.Observable, global.Rx.Observable, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx, global.Rx.Observable, global.Rx.Observable.prototype, global.Rx));
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/common'), require('@angular/core'), require('rxjs/Subject'), require('rxjs/observable/from'), require('rxjs/observable/of'), require('rxjs/operator/every'), require('rxjs/operator/map'), require('rxjs/operator/mergeAll'), require('rxjs/operator/mergeMap'), require('rxjs/operator/reduce'), require('rxjs/Observable'), require('rxjs/operator/catch'), require('rxjs/operator/concatAll'), require('rxjs/operator/first'), require('rxjs/util/EmptyError'), require('rxjs/observable/fromPromise'), require('rxjs/operator/last'), require('rxjs/BehaviorSubject')) : typeof define === 'function' && define.amd ? define("2c", ["exports", "43", "7", "c", "53", "55", "56", "23", "5a", "57", "58", "d", "13", "5b", "5c", "5d", "e", "5e", "38"], factory) : (factory((global.ng = global.ng || {}, global.ng.router = global.ng.router || {}), global.ng.common, global.ng.core, global.Rx, global.Rx.Observable, global.Rx.Observable, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx.Observable.prototype, global.Rx, global.Rx.Observable, global.Rx.Observable.prototype, global.Rx));
 }(this, function(exports, _angular_common, _angular_core, rxjs_Subject, rxjs_observable_from, rxjs_observable_of, rxjs_operator_every, rxjs_operator_map, rxjs_operator_mergeAll, rxjs_operator_mergeMap, rxjs_operator_reduce, rxjs_Observable, rxjs_operator_catch, rxjs_operator_concatAll, rxjs_operator_first, rxjs_util_EmptyError, rxjs_observable_fromPromise, l, rxjs_BehaviorSubject) {
   'use strict';
   var __extends = (this && this.__extends) || function(d, b) {
@@ -35478,10 +35575,12 @@ $__System.registerDynamic("31", ["7", "2c", "3c", "39"], true, function ($__requ
     var ApiDetailPageComponent = function () {
         /**
          * Constructor.
+         * @param router
          * @param route
          * @param apis
          */
-        function ApiDetailPageComponent(route, apis) {
+        function ApiDetailPageComponent(router, route, apis) {
+            this.router = router;
             this.route = route;
             this.apis = apis;
             this.dataLoaded = new Map();
@@ -35529,12 +35628,24 @@ $__System.registerDynamic("31", ["7", "2c", "3c", "39"], true, function ($__requ
             }
             return this.api.repositoryResource.repositoryUrl + "/blob/master" + sep + this.api.repositoryResource.resourceName;
         };
+        /**
+         * Called to delete the API from the studio (unmanage it).
+         */
+        ApiDetailPageComponent.prototype.onDelete = function () {
+            var _this = this;
+            // TODO need a visual indicator that we're working on the delete
+            this.apis.deleteApi(this.api).then(function () {
+                _this.router.navigate([""]);
+            }).catch(function (reason) {
+                alert("Failed to delete the API!");
+            });
+        };
         ApiDetailPageComponent = __decorate([core_1.Component({
             moduleId: module.id,
             selector: 'api-detail-page',
-            template: "\n      <breadcrumbs [breadcrumbs]=\"[\n          {\n              label: 'Dashboard',\n              icon: 'dashboard',\n              route: [ '/' ]\n          },\n          {\n              label: 'APIs',\n              icon: 'search',\n              route: [ '/apis' ]\n          },\n          {\n              label: api.name,\n              icon: 'bolt'\n          }\n      ]\"></breadcrumbs>\n      <div class=\"container-fluid api-details\">\n          <div class=\"row-fluid\">\n              <!-- Left Column -->\n              <div class=\"col-xs-12 col-sm-6 col-md-6\">\n                  <div class=\"container-fluid container-cards-pf api-editor-overview\">\n                      <div class=\"row row-cards-pf\">\n\n                          <!-- Overview Information Card -->\n                          <div class=\"\">\n                              <div class=\"card-pf card-pf-accented\">\n                                  <div class=\"card-pf-heading\">\n                                      <h1 class=\"card-pf-title\">\n                                          <span class=\"fa fa-fw fa-bolt api-deployed api-card-icon\"></span>\n                                          <span>{{ api.name }}</span>\n                                          <div class=\"pull-right\">\n                                              <div class=\"dropdown dropdown-kebab-pf\" style=\"display:inline;\">\n                                                  <button class=\"btn btn-link dropdown-toggle\" type=\"button\" id=\"dropdownKebabRight\" data-toggle=\"dropdown\"\n                                                          aria-haspopup=\"true\" aria-expanded=\"true\">\n                                                      <span class=\"fa fa-ellipsis-v\"></span>\n                                                  </button>\n                                                  <ul class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownKebabRight\">\n                                                      <li>\n                                                          <a href=\"#\">\n                                                              <span class=\"fa fa-fw fa-pencil\"></span>\n                                                              <span>Design</span>\n                                                          </a>\n                                                      </li>\n                                                      <li>\n                                                          <a href=\"#\" class=\"disabled\" aria-disabled=\"true\">\n                                                              <span class=\"fa fa-fw fa-book\"></span>\n                                                              <span>Documentation</span>\n                                                          </a>\n                                                      </li>\n                                                      <li>\n                                                          <a href=\"#\" class=\"disabled\" aria-disabled=\"true\">\n                                                              <span class=\"fa fa-fw fa-check-square-o\"></span>\n                                                              <span>Tests</span>\n                                                          </a>\n                                                      </li>\n                                                      <li role=\"separator\" class=\"divider\"></li>\n                                                      <li>\n                                                          <a href=\"#\">\n                                                              <span class=\"fa fa-fw fa-trash\"></span>\n                                                              <span>Delete</span>\n                                                          </a>\n                                                      </li>\n                                                  </ul>\n                                              </div>\n                                          </div>\n                                      </h1>\n                                  </div>\n                                  <div class=\"card-pf-body\">\n                                      <h3 class=\"api-description\">{{ api.description }}</h3>\n                                      <div class=\"api-created-info\">\n                                          <div>\n                                              <span class=\"fa fa-fw fa-clock-o\"></span>\n                                              <span>Created on <em>{{ api.createdOn | date }}</em></span>\n                                          </div>\n                                          <div *ngIf=\"api.createdBy\">\n                                              <span class=\"fa fa-fw fa-user\"></span>\n                                              <span>Created by <em>{{ api.createdBy }}</em></span>\n                                          </div>\n                                          <div>\n                                              <span class=\"fa fa-fw fa-github\"></span>\n                                              <a class=\"api-resource-url-value\" target=\"_blank\"\n                                                 href=\"{{ getResourceUrlHref() }}\">\n                                                  <span>{{ getResourceUrlLabel() }}</span>\n                                                  <span class=\"fa fa-external-link\"></span>\n                                              </a>\n                                          </div>\n                                      </div>\n                                      <div class=\"api-action-buttons\">\n                                          <a href=\"#\" class=\"btn btn-primary\">Design API</a>\n                                          <a href=\"#\" class=\"btn btn-default pull-right disabled\" aria-disabled=\"true\">View Documentation</a>\n                                          <a href=\"#\" class=\"btn btn-default pull-right disabled\" aria-disabled=\"true\">Manage Tests</a>\n                                      </div>\n                                  </div>\n                              </div>\n                          </div>\n                      </div>\n                      <div class=\"row row-cards-pf\">\n                          <div class=\"\">\n                              <div class=\"card-pf\">\n                                  <div class=\"card-pf-heading\">\n                                      <h2 style=\"height: 18px;\" class=\"card-pf-title\">Top Collaborators</h2>\n                                  </div>\n                                  <div class=\"card-pf-body\">\n                                      <div class=\"api-data-loading\" *ngIf=\"!dataLoaded['collaborators']\">\n                                          <p><span class=\"spinner spinner-xs spinner-inline\"></span> Loading collaborators data...</p>\n                                      </div>\n                                      <div class=\"api-collaborators\" *ngIf=\"dataLoaded['collaborators']\">\n                                          <div class=\"progress-container progress-description-left\" *ngFor=\"let c of collaborators.collaborators\">\n                                              <div class=\"progress-description\"><a href=\"{{ c.userUrl }}\" target=\"_blank\">{{ c.userName }}</a></div>\n                                              <div class=\"progress\">\n                                                  <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"20\" aria-valuemin=\"0\" aria-valuemax=\"100\" [style.width]=\"((c.numChanges / collaborators.totalChanges) * 100) + '%'\">\n                                                      <span><strong>{{ c.numChanges }} of {{ collaborators.totalChanges }}</strong> commits</span>\n                                                  </div>\n                                              </div>\n                                          </div>\n                                      </div>\n                                  </div>\n                              </div>\n                          </div>\n                      </div>\n                  </div>\n              </div>\n          </div>\n      </div>\n    ",
+            template: "\n      <breadcrumbs>\n          <li breadcrumb label=\"Dashboard\" icon=\"dashboard\" [route]=\"[ '/' ]\"></li>\n          <li breadcrumb label=\"APIs\" icon=\"search\" [route]=\"[ '/apis' ]\"></li>\n          <li breadcrumb [label]=\"api.name\" icon=\"bolt\" class=\"active\"></li>\n      </breadcrumbs>\n      <div class=\"container-fluid api-details\">\n          <div class=\"row-fluid\">\n              <!-- Left Column -->\n              <div class=\"col-xs-12 col-sm-6 col-md-6\">\n                  <div class=\"container-fluid container-cards-pf api-editor-overview\">\n                      <div class=\"row row-cards-pf\">\n\n                          <!-- Overview Information Card -->\n                          <div class=\"\">\n                              <div class=\"card-pf card-pf-accented\">\n                                  <div class=\"card-pf-heading\">\n                                      <h1 class=\"card-pf-title\">\n                                          <span class=\"fa fa-fw fa-bolt api-deployed api-card-icon\"></span>\n                                          <span>{{ api.name }}</span>\n                                          <div class=\"pull-right\">\n                                              <div class=\"dropdown dropdown-kebab-pf\" style=\"display:inline;\">\n                                                  <button class=\"btn btn-link dropdown-toggle\" type=\"button\" id=\"dropdownKebabRight\" data-toggle=\"dropdown\"\n                                                          aria-haspopup=\"true\" aria-expanded=\"true\">\n                                                      <span class=\"fa fa-ellipsis-v\"></span>\n                                                  </button>\n                                                  <ul class=\"dropdown-menu dropdown-menu-right\" aria-labelledby=\"dropdownKebabRight\">\n                                                      <li>\n                                                          <a href=\"#\">\n                                                              <span class=\"fa fa-fw fa-pencil\"></span>\n                                                              <span>Design</span>\n                                                          </a>\n                                                      </li>\n                                                      <li>\n                                                          <a href=\"#\" class=\"disabled\" aria-disabled=\"true\">\n                                                              <span class=\"fa fa-fw fa-book\"></span>\n                                                              <span>Documentation</span>\n                                                          </a>\n                                                      </li>\n                                                      <li>\n                                                          <a href=\"#\" class=\"disabled\" aria-disabled=\"true\">\n                                                              <span class=\"fa fa-fw fa-check-square-o\"></span>\n                                                              <span>Tests</span>\n                                                          </a>\n                                                      </li>\n                                                      <li role=\"separator\" class=\"divider\"></li>\n                                                      <li>\n                                                          <a data-toggle=\"modal\" data-target=\"#confirmDeleteModal\">\n                                                              <span class=\"fa fa-fw fa-trash\"></span>\n                                                              <span>Delete</span>\n                                                          </a>\n                                                      </li>\n                                                  </ul>\n                                              </div>\n                                          </div>\n                                      </h1>\n                                  </div>\n                                  <div class=\"card-pf-body\">\n                                      <h3 class=\"api-description\">{{ api.description }}</h3>\n                                      <div class=\"api-created-info\">\n                                          <div>\n                                              <span class=\"fa fa-fw fa-clock-o\"></span>\n                                              <span>Created on <em>{{ api.createdOn | date }}</em></span>\n                                          </div>\n                                          <div *ngIf=\"api.createdBy\">\n                                              <span class=\"fa fa-fw fa-user\"></span>\n                                              <span>Created by <em>{{ api.createdBy }}</em></span>\n                                          </div>\n                                          <div>\n                                              <span class=\"fa fa-fw fa-github\"></span>\n                                              <a class=\"api-resource-url-value\" target=\"_blank\"\n                                                 href=\"{{ getResourceUrlHref() }}\">\n                                                  <span>{{ getResourceUrlLabel() }}</span>\n                                                  <span class=\"fa fa-external-link\"></span>\n                                              </a>\n                                          </div>\n                                      </div>\n                                      <div class=\"api-action-buttons\">\n                                          <a href=\"#\" class=\"btn btn-primary\">Design API</a>\n                                          <a href=\"#\" class=\"btn btn-default pull-right disabled\" aria-disabled=\"true\">View Documentation</a>\n                                          <a href=\"#\" class=\"btn btn-default pull-right disabled\" aria-disabled=\"true\">Manage Tests</a>\n                                      </div>\n                                  </div>\n                              </div>\n                          </div>\n                      </div>\n                      <div class=\"row row-cards-pf\">\n                          <div class=\"\">\n                              <div class=\"card-pf\">\n                                  <div class=\"card-pf-heading\">\n                                      <h2 style=\"height: 18px;\" class=\"card-pf-title\">Top Collaborators</h2>\n                                  </div>\n                                  <div class=\"card-pf-body\">\n                                      <div class=\"api-data-loading\" *ngIf=\"!dataLoaded['collaborators']\">\n                                          <p><span class=\"spinner spinner-xs spinner-inline\"></span> Loading collaborators data...</p>\n                                      </div>\n                                      <div class=\"api-collaborators\" *ngIf=\"dataLoaded['collaborators']\">\n                                          <div class=\"progress-container progress-description-left\" *ngFor=\"let c of collaborators.collaborators\">\n                                              <div class=\"progress-description\"><a href=\"{{ c.userUrl }}\" target=\"_blank\">{{ c.userName }}</a></div>\n                                              <div class=\"progress\">\n                                                  <div class=\"progress-bar\" role=\"progressbar\" aria-valuenow=\"20\" aria-valuemin=\"0\" aria-valuemax=\"100\" [style.width]=\"((c.numChanges / collaborators.totalChanges) * 100) + '%'\">\n                                                      <span><strong>{{ c.numChanges }} of {{ collaborators.totalChanges }}</strong> commits</span>\n                                                  </div>\n                                              </div>\n                                          </div>\n                                      </div>\n                                  </div>\n                              </div>\n                          </div>\n                      </div>\n                  </div>\n              </div>\n          </div>\n      </div>\n      <div class=\"modal fade\" id=\"confirmDeleteModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"confirmDeleteModalLabel\" aria-hidden=\"true\">\n          <div class=\"modal-dialog\">\n              <div class=\"modal-content\">\n                  <div class=\"modal-header\">\n                      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\n                          <span class=\"pficon pficon-close\"></span>\n                      </button>\n                      <h4 class=\"modal-title\" id=\"confirmDeleteModalLabel\">Confirm Delete</h4>\n                  </div>\n                  <div class=\"modal-body\">\n                      <p>Do you really want to delete this API?</p>\n                      <div class=\"alert alert-info\">\n                          <span class=\"pficon pficon-info\"></span>\n                          <strong>NOTE:</strong>\n                          <span>This will not delete the API definition file from source control - it will only remove it from APIMan Studio.</span>\n                      </div>\n                  </div>\n                  <div class=\"modal-footer\">\n                      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Cancel</button>\n                      <button type=\"button\" class=\"btn btn-danger\" data-dismiss=\"modal\" (click)=\"onDelete()\">Delete</button>\n                  </div>\n              </div>\n          </div>\n      </div>\n    ",
             styles: ["\n      .api-description {\n        margin-top: 30px;\n        margin-bottom: 25px;\n      }\n      .api-created-info {\n        margin-left: 15px;\n      }\n      .api-meta-data {\n        margin-top: 15px;\n      }\n      .api-meta-data label {\n        text-decoration: underline;\n      }\n      .api-action-buttons {\n        margin-top: 20px;\n      }\n      .api-action-buttons a.pull-right {\n        margin-left: 10px;\n      }\n      .dropdown-menu a.disabled {\n        cursor: not-allowed;\n        color: #999;\n      }\n    "]
-        }), __param(1, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [router_1.ActivatedRoute, Object])], ApiDetailPageComponent);
+        }), __param(2, core_1.Inject(apis_service_1.IApisService)), __metadata('design:paramtypes', [router_1.Router, router_1.ActivatedRoute, Object])], ApiDetailPageComponent);
         return ApiDetailPageComponent;
     }();
     exports.ApiDetailPageComponent = ApiDetailPageComponent;
@@ -35550,7 +35661,7 @@ $__System.registerDynamic("3c", ["7"], true, function ($__require, exports, modu
   exports.IApisService = new core_1.OpaqueToken("IApisService");
   return module.exports;
 });
-$__System.registerDynamic("5e", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("60", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35567,13 +35678,13 @@ $__System.registerDynamic("5e", [], true, function ($__require, exports, module)
     exports.ApiRepositoryResource = ApiRepositoryResource;
     return module.exports;
 });
-$__System.registerDynamic("39", ["5e"], true, function ($__require, exports, module) {
+$__System.registerDynamic("39", ["60"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
-    var api_repository_resource_1 = $__require("5e");
+    var api_repository_resource_1 = $__require("60");
     var Api = function () {
         function Api() {
             this.id = "";
@@ -35590,7 +35701,7 @@ $__System.registerDynamic("39", ["5e"], true, function ($__require, exports, mod
     exports.Api = Api;
     return module.exports;
 });
-$__System.registerDynamic("5f", ["7", "3c", "39"], true, function ($__require, exports, module) {
+$__System.registerDynamic("61", ["7", "3c", "39"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35672,7 +35783,7 @@ $__System.registerDynamic("5f", ["7", "3c", "39"], true, function ($__require, e
     exports.NewApiFormComponent = NewApiFormComponent;
     return module.exports;
 });
-$__System.registerDynamic("60", ["7"], true, function ($__require, exports, module) {
+$__System.registerDynamic("62", ["7"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35694,22 +35805,23 @@ $__System.registerDynamic("60", ["7"], true, function ($__require, exports, modu
          * Constructor.
          */
         function ApisListComponent() {
-            this.onApisSelected = new core_1.EventEmitter();
-            this.selectedApis = [];
+            this.onApiSelected = new core_1.EventEmitter();
+            this.onApiDeselected = new core_1.EventEmitter();
         }
         ApisListComponent.prototype.toggleApiSelected = function (api) {
             if (this.isSelected(api)) {
-                this.selectedApis.splice(this.selectedApis.indexOf(api), 1);
+                this.onApiDeselected.emit(api);
             } else {
-                this.selectedApis.push(api);
+                this.onApiSelected.emit(api);
             }
-            this.onApisSelected.emit(this.selectedApis);
         };
         ApisListComponent.prototype.isSelected = function (api) {
             return this.selectedApis.indexOf(api) != -1;
         };
         __decorate([core_1.Input(), __metadata('design:type', Array)], ApisListComponent.prototype, "apis", void 0);
-        __decorate([core_1.Output(), __metadata('design:type', core_1.EventEmitter)], ApisListComponent.prototype, "onApisSelected", void 0);
+        __decorate([core_1.Input(), __metadata('design:type', Array)], ApisListComponent.prototype, "selectedApis", void 0);
+        __decorate([core_1.Output(), __metadata('design:type', core_1.EventEmitter)], ApisListComponent.prototype, "onApiSelected", void 0);
+        __decorate([core_1.Output(), __metadata('design:type', core_1.EventEmitter)], ApisListComponent.prototype, "onApiDeselected", void 0);
         ApisListComponent = __decorate([core_1.Component({
             moduleId: module.id,
             selector: 'apis-list',
@@ -35721,7 +35833,7 @@ $__System.registerDynamic("60", ["7"], true, function ($__require, exports, modu
     exports.ApisListComponent = ApisListComponent;
     return module.exports;
 });
-$__System.registerDynamic('5d', [], true, function ($__require, exports, module) {
+$__System.registerDynamic('5f', [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35758,7 +35870,7 @@ $__System.registerDynamic('5d', [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic("61", ["15"], true, function ($__require, exports, module) {
+$__System.registerDynamic("63", ["15"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35808,7 +35920,7 @@ $__System.registerDynamic("61", ["15"], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('c', ['d', '1c', '15', '5d', '61', '62'], true, function ($__require, exports, module) {
+$__System.registerDynamic('c', ['d', '1c', '15', '5f', '63', '64'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -35824,9 +35936,9 @@ $__System.registerDynamic('c', ['d', '1c', '15', '5d', '61', '62'], true, functi
     var Observable_1 = $__require('d');
     var Subscriber_1 = $__require('1c');
     var Subscription_1 = $__require('15');
-    var ObjectUnsubscribedError_1 = $__require('5d');
-    var SubjectSubscription_1 = $__require('61');
-    var rxSubscriber_1 = $__require('62');
+    var ObjectUnsubscribedError_1 = $__require('5f');
+    var SubjectSubscription_1 = $__require('63');
+    var rxSubscriber_1 = $__require('64');
     /**
      * @class SubjectSubscriber<T>
      */
@@ -35974,7 +36086,7 @@ $__System.registerDynamic('c', ['d', '1c', '15', '5d', '61', '62'], true, functi
 
     return module.exports;
 });
-$__System.registerDynamic("4c", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("4e", [], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
@@ -35987,7 +36099,7 @@ $__System.registerDynamic("4c", [], true, function ($__require, exports, module)
 
   return module.exports;
 });
-$__System.registerDynamic("63", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("65", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36001,7 +36113,7 @@ $__System.registerDynamic("63", [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic("64", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("66", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36053,7 +36165,7 @@ $__System.registerDynamic("20", [], true, function ($__require, exports, module)
 
   return module.exports;
 });
-$__System.registerDynamic("65", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("67", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36089,18 +36201,18 @@ $__System.registerDynamic("65", [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('15', ['4c', '63', '64', '1f', '20', '65'], true, function ($__require, exports, module) {
+$__System.registerDynamic('15', ['4e', '65', '66', '1f', '20', '67'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
-    var isArray_1 = $__require('4c');
-    var isObject_1 = $__require('63');
-    var isFunction_1 = $__require('64');
+    var isArray_1 = $__require('4e');
+    var isObject_1 = $__require('65');
+    var isFunction_1 = $__require('66');
     var tryCatch_1 = $__require('1f');
     var errorObject_1 = $__require('20');
-    var UnsubscriptionError_1 = $__require('65');
+    var UnsubscriptionError_1 = $__require('67');
     /**
      * Represents a disposable resource, such as the execution of an Observable. A
      * Subscription has one important method, `unsubscribe`, that takes no argument
@@ -36249,7 +36361,7 @@ $__System.registerDynamic('15', ['4c', '63', '64', '1f', '20', '65'], true, func
 
     return module.exports;
 });
-$__System.registerDynamic("66", [], true, function ($__require, exports, module) {
+$__System.registerDynamic("68", [], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36267,7 +36379,7 @@ $__System.registerDynamic("66", [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('1c', ['64', '15', '66', '62'], true, function ($__require, exports, module) {
+$__System.registerDynamic('1c', ['66', '15', '68', '64'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36280,10 +36392,10 @@ $__System.registerDynamic('1c', ['64', '15', '66', '62'], true, function ($__req
         }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    var isFunction_1 = $__require('64');
+    var isFunction_1 = $__require('66');
     var Subscription_1 = $__require('15');
-    var Observer_1 = $__require('66');
-    var rxSubscriber_1 = $__require('62');
+    var Observer_1 = $__require('68');
+    var rxSubscriber_1 = $__require('64');
     /**
      * Implements the {@link Observer} interface and extends the
      * {@link Subscription} class. While the {@link Observer} is the public API for
@@ -36518,7 +36630,7 @@ $__System.registerDynamic('1c', ['64', '15', '66', '62'], true, function ($__req
 
     return module.exports;
 });
-$__System.registerDynamic('62', ['17'], true, function ($__require, exports, module) {
+$__System.registerDynamic('64', ['17'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36531,14 +36643,14 @@ $__System.registerDynamic('62', ['17'], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('67', ['1c', '62'], true, function ($__require, exports, module) {
+$__System.registerDynamic('69', ['1c', '64'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
     var Subscriber_1 = $__require('1c');
-    var rxSubscriber_1 = $__require('62');
+    var rxSubscriber_1 = $__require('64');
     function toSubscriber(nextOrObserver, error, complete) {
         if (nextOrObserver) {
             if (nextOrObserver instanceof Subscriber_1.Subscriber) {
@@ -36581,7 +36693,7 @@ $__System.registerDynamic('17', [], true, function ($__require, exports, module)
 
     return module.exports;
 });
-$__System.registerDynamic('50', ['17'], true, function ($__require, exports, module) {
+$__System.registerDynamic('52', ['17'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -36609,15 +36721,15 @@ $__System.registerDynamic('50', ['17'], true, function ($__require, exports, mod
 
     return module.exports;
 });
-$__System.registerDynamic('d', ['17', '67', '50'], true, function ($__require, exports, module) {
+$__System.registerDynamic('d', ['17', '69', '52'], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
         global = this || self,
         GLOBAL = global;
     var root_1 = $__require('17');
-    var toSubscriber_1 = $__require('67');
-    var observable_1 = $__require('50');
+    var toSubscriber_1 = $__require('69');
+    var observable_1 = $__require('52');
     /**
      * A representation of any set of values over any amount of time. This the most basic building block
      * of RxJS.
@@ -44062,7 +44174,7 @@ var define = $__System.amdDefine;
 }));
 
 })();
-$__System.registerDynamic("68", ["7"], true, function ($__require, exports, module) {
+$__System.registerDynamic("6a", ["7"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -44084,22 +44196,23 @@ $__System.registerDynamic("68", ["7"], true, function ($__require, exports, modu
          * Constructor.
          */
         function ApisCardsComponent() {
-            this.onApisSelected = new core_1.EventEmitter();
-            this.selectedApis = [];
+            this.onApiSelected = new core_1.EventEmitter();
+            this.onApiDeselected = new core_1.EventEmitter();
         }
         ApisCardsComponent.prototype.toggleApiSelected = function (api) {
             if (this.isSelected(api)) {
-                this.selectedApis.splice(this.selectedApis.indexOf(api), 1);
+                this.onApiDeselected.emit(api);
             } else {
-                this.selectedApis.push(api);
+                this.onApiSelected.emit(api);
             }
-            this.onApisSelected.emit(this.selectedApis);
         };
         ApisCardsComponent.prototype.isSelected = function (api) {
             return this.selectedApis.indexOf(api) != -1;
         };
         __decorate([core_1.Input(), __metadata('design:type', Array)], ApisCardsComponent.prototype, "apis", void 0);
-        __decorate([core_1.Output(), __metadata('design:type', core_1.EventEmitter)], ApisCardsComponent.prototype, "onApisSelected", void 0);
+        __decorate([core_1.Input(), __metadata('design:type', Array)], ApisCardsComponent.prototype, "selectedApis", void 0);
+        __decorate([core_1.Output(), __metadata('design:type', core_1.EventEmitter)], ApisCardsComponent.prototype, "onApiSelected", void 0);
+        __decorate([core_1.Output(), __metadata('design:type', core_1.EventEmitter)], ApisCardsComponent.prototype, "onApiDeselected", void 0);
         ApisCardsComponent = __decorate([core_1.Component({
             moduleId: module.id,
             selector: 'apis-cards',
@@ -44111,7 +44224,7 @@ $__System.registerDynamic("68", ["7"], true, function ($__require, exports, modu
     exports.ApisCardsComponent = ApisCardsComponent;
     return module.exports;
 });
-$__System.registerDynamic("69", ["7", "9", "a", "37", "29", "2b", "3b", "3d", "32", "33", "34", "3f", "40", "41", "2d", "2e", "2f", "30", "31", "5f", "60", "68"], true, function ($__require, exports, module) {
+$__System.registerDynamic("6b", ["7", "9", "a", "37", "29", "2b", "3b", "3d", "32", "33", "34", "3f", "40", "41", "42", "2d", "2e", "2f", "30", "31", "61", "62", "6a"], true, function ($__require, exports, module) {
     "use strict";
 
     var define,
@@ -44146,6 +44259,7 @@ $__System.registerDynamic("69", ["7", "9", "a", "37", "29", "2b", "3b", "3d", "3
     var nav_header_component_1 = $__require("3f");
     var vertical_nav_component_1 = $__require("40");
     var breadcrumbs_component_1 = $__require("41");
+    var breadcrumb_component_1 = $__require("42");
     /* Pages */
     var login_page_1 = $__require("2d");
     var dashboard_page_1 = $__require("2e");
@@ -44153,14 +44267,14 @@ $__System.registerDynamic("69", ["7", "9", "a", "37", "29", "2b", "3b", "3d", "3
     var newapi_page_1 = $__require("30");
     var api_detail_page_1 = $__require("31");
     /* Page Components */
-    var newapi_form_component_1 = $__require("5f");
-    var apis_list_component_1 = $__require("60");
-    var apis_cards_component_1 = $__require("68");
+    var newapi_form_component_1 = $__require("61");
+    var apis_list_component_1 = $__require("62");
+    var apis_cards_component_1 = $__require("6a");
     var StudioModule = function () {
         function StudioModule() {}
         StudioModule = __decorate([core_1.NgModule({
             imports: [platform_browser_1.BrowserModule, forms_1.FormsModule, http_1.HttpModule, studio_routing_1.StudioRouting],
-            declarations: [studio_component_1.StudioComponent, dashboard_page_1.DashboardPageComponent, apis_page_1.ApisPageComponent, newapi_page_1.NewApiPageComponent, login_page_1.LoginPageComponent, nav_header_component_1.NavHeaderComponent, vertical_nav_component_1.VerticalNavComponent, breadcrumbs_component_1.BreadcrumbsComponent, newapi_form_component_1.NewApiFormComponent, api_detail_page_1.ApiDetailPageComponent, apis_list_component_1.ApisListComponent, apis_cards_component_1.ApisCardsComponent],
+            declarations: [studio_component_1.StudioComponent, dashboard_page_1.DashboardPageComponent, apis_page_1.ApisPageComponent, newapi_page_1.NewApiPageComponent, login_page_1.LoginPageComponent, nav_header_component_1.NavHeaderComponent, vertical_nav_component_1.VerticalNavComponent, breadcrumbs_component_1.BreadcrumbsComponent, breadcrumb_component_1.BreadcrumbComponent, newapi_form_component_1.NewApiFormComponent, api_detail_page_1.ApiDetailPageComponent, apis_list_component_1.ApisListComponent, apis_cards_component_1.ApisCardsComponent],
             providers: [apis_service_provider_1.ApisServiceProvider, auth_service_provider_1.AuthenticationServiceProvider, dashboard_resolve_1.RecentApisResolve, api_detail_resolve_1.ApiResolve, auth_guard_1.AuthenticationCanActivateGuard],
             bootstrap: [studio_component_1.StudioComponent]
         }), __metadata('design:paramtypes', [])], StudioModule);
@@ -44169,14 +44283,14 @@ $__System.registerDynamic("69", ["7", "9", "a", "37", "29", "2b", "3b", "3d", "3
     exports.StudioModule = StudioModule;
     return module.exports;
 });
-$__System.registerDynamic('5', ['8', '69'], true, function ($__require, exports, module) {
+$__System.registerDynamic('5', ['8', '6b'], true, function ($__require, exports, module) {
   "use strict";
 
   var define,
       global = this || self,
       GLOBAL = global;
   var platform_browser_dynamic_1 = $__require('8');
-  var studio_module_1 = $__require('69');
+  var studio_module_1 = $__require('6b');
   var platform = platform_browser_dynamic_1.platformBrowserDynamic();
   platform.bootstrapModule(studio_module_1.StudioModule);
   return module.exports;
