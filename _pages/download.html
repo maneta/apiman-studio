@@ -1,0 +1,50 @@
+---
+title: Download
+permalink: /download/
+layout: page
+excerpt: Download the API Design Studio quickstart and get started fast!
+---
+
+<div class="container" id="download">
+    <div id="content" class="row">
+        <div class="col-lg-10">
+            <h1 class="section-header">Getting Started (Quickstart)</h1>
+            <p>The easiest way to get started with the API Design Studio is to download the quickstart (based on Tomcat 8) and fire it up!  All you need is to have Java (version 8) installed, and you're ready to rock.</p>
+        </div>
+
+        <div class="container">
+            <div class="col-lg-7">
+                <h3>Download & Install</h3>
+                <ol>
+                    <li><a href="http://downloads.jboss.org/overlord/apiman-studio/v{{ site.version }}/api-design-studio-{{ site.version }}-quickstart.zip">API Design Studio v{{ site.version }}</a></li>
+                    <li>Unpack the API Design Studio Quickstart zip</li>
+                </ol>
+
+                <h3>Run</h3>
+                <ol>
+                    <li>Start Tomcat</li>
+                    <li>
+                        Point your browser at the <a href="http://localhost:8080/" rel="nofollow" target="_blank">API Design Studio</a> and login with your GitHub credentials!
+                    </li>
+                </ol>
+
+                <h3>Configure</h3>
+                <p>
+                    The quickstart distribution comes pre-configured with everything you need to get started.  There is <strong>no additional configuration</strong> for you
+                    to perform!
+                </p>
+            </div>
+            <div class="col-lg-5">
+                <h3>Or simply try this...</h3>
+                <pre class="code-block">
+mkdir ~/api-design-studio-{{ site.version }}
+cd ~/api-design-studio-{{ site.version }}
+curl http://downloads.jboss.org/overlord/apiman-studio/v{{ site.version }}/api-design-studio-{{ site.version }}-quickstart.zip -o api-design-studio-{{ site.version }}-quickstart.zip
+unzip api-design-studio-{{ site.version }}-quickstart.zip
+cd apache-tomcat-8.5.11
+./bin/catalina.sh run
+                  </pre>
+            </div>
+        </div>
+    </div>
+</div>

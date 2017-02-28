@@ -1,0 +1,16 @@
+[
+  {
+    "url": "https://github.com/apiman/apiman-studio/releases/tag/v0.0.1",
+    "id": "v0.0.1",
+    "tag_name": "v0.0.1",
+    "version": "0.0.1",
+    "target_commitish": "master",
+    "name": "apiman-studio v0.0.1",
+    "draft": false,
+    "prerelease": true,
+    "created_at": "2017-02-27T20:00:00Z",
+    "published_at": "2017-02-27T20:00:00Z",
+    "tarball_url": "https://api.github.com/repos/apiman/apiman-studio/tarball/v0.0.1",
+    "zipball_url": "https://api.github.com/repos/apiman/apiman-studio/zipball/v0.0.1"
+  }
+]
