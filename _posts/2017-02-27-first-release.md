@@ -13,15 +13,48 @@ Thanks for reading!
 
 ---
 
-Foo The First
+Overview
 ===
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
- 
-Foo The Second
----
-Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. 
+While working on the [apiman](http://www.apiman.io/), we'd often run into the
+Swagger (now [OpenAPI](https://www.openapis.org/)) specification in a variety of 
+places.  Within the API Management space, this was typically needed purely for
+documentation purposes and located on the Developer Portal.  API documentation is
+obviously very useful to customers of your APIs so that they can figure out how
+to invoke them.
+
+What quickly became clear is that there was not a high quality, fully open source
+designer for creating (or modifying) OpenAPI API definitions.  In fact, most of
+the solutions out there (open and closed source) are simply text editors with a 
+live-preview pane.  These solutions are often very well done, but they do require
+that the user know how to write an API spec using the OpenAPI format.
+
+To address this (hopefully useful) problem space, we created the API Design 
+Studio project.  This project is intended to provide a standalone API design 
+solution, allowing users to collaboratively create, manage, and edit OpenAPI
+definitions without necessarily needing to know the syntax/format.
+
+What we have now
+===
+As of this writing, we're just about to release a tech preview (first release!)
+of the project.  This release is intended to solicit early feedback from anyone
+interested.  As always, feedback is welcome - and the earlier in the process
+you can make a suggestion, the more likely it is to see the light of day (major
+changes/suggestions in particular).
+
+See the [API Design Studio](http://www.apidesigner.org) for more information
+about how to download and evaluate the project.  It's already super easy to
+download and try!
+
+The Future
+===
+Over the next few days/weeks, we'll be adding more content to this project site
+while at the same time improving the Studio itself.  We're working on putting
+together a sensible roadmap, capturing requirements, and designing new 
+functionality.  All of that will be rolled out on a hopefully continual basis,
+either on the project site (e.g. roadmap) or in GitHub (new features).
+
+Because this project is fully open source, we always love feedback and (even 
+better) contributions.  Please give the project a try and let us know what you
+think!
 
 
-And Another Things
----
-Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur? At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere
