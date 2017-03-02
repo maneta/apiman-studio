@@ -15,7 +15,11 @@ $nav-header-height: 96px;
 }
 
 .nav-header .nav-logo a {
-  color: inherit;
+  color: transparent;
+  text-indent: -9999px;
+  background-image: url(../images/Studio-Logo.png);
+  width: 249px;
+  height: 49px;
 }
 .nav-header .nav-logo a:hover {
   text-decoration: none;
