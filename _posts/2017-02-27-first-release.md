@@ -15,7 +15,7 @@ Thanks for reading!
 
 Overview
 ===
-While working on the [apiman](http://www.apiman.io/), we'd often run into the
+While working on the [apiman](http://www.apiman.io/) project, we'd often run into the
 Swagger (now [OpenAPI](https://www.openapis.org/)) specification in a variety of 
 places.  Within the API Management space, this was typically needed purely for
 documentation purposes and located on the Developer Portal.  API documentation is
