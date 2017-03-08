@@ -16,7 +16,7 @@ excerpt: Download the API Design Studio quickstart and get started fast!
             <div class="col-lg-7">
                 <h3>Download & Install</h3>
                 <ol>
-                    <li><a href="http://downloads.jboss.org/overlord/apiman-studio/v{{ site.version }}/api-design-studio-{{ site.version }}-quickstart.zip">API Design Studio v{{ site.version }}</a></li>
+                    <li><a href="https://github.com/apiman/apiman-studio/releases/download/v{{ site.version }}/api-design-studio-{{ site.version }}-quickstart.zip">API Design Studio v{{ site.version }}</a></li>
                     <li>Unpack the API Design Studio Quickstart zip</li>
                 </ol>
 
@@ -39,7 +39,7 @@ excerpt: Download the API Design Studio quickstart and get started fast!
                 <pre class="code-block">
 mkdir ~/api-design-studio-{{ site.version }}
 cd ~/api-design-studio-{{ site.version }}
-curl http://downloads.jboss.org/overlord/apiman-studio/v{{ site.version }}/api-design-studio-{{ site.version }}-quickstart.zip -o api-design-studio-{{ site.version }}-quickstart.zip
+curl -L https://github.com/apiman/apiman-studio/releases/download/v{{ site.version }}/api-design-studio-{{ site.version }}-quickstart.zip -o api-design-studio-{{ site.version }}-quickstart.zip
 unzip api-design-studio-{{ site.version }}-quickstart.zip
 cd apache-tomcat-8.5.11
 ./bin/catalina.sh run
