@@ -14,7 +14,6 @@ excerpt: All the latest news from the Electron team and community.
   <div class="row">
     <div class="post-list col-lg-10">
       {% for post in site.posts %}
-      {% if post.newUrl == nil %}
       {% assign author = site.data.authors[post.author] %}
       <div class="container blog-post-item">
         <div class="row">
@@ -32,7 +31,6 @@ excerpt: All the latest news from the Electron team and community.
           </div>
         </div>
       </div>
-      {% endif %}
       {% endfor %}
     </div>
   </div>
